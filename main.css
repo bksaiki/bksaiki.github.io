@@ -37,6 +37,15 @@ p {
 	margin-right: 10px;
 }
 
+a {
+	text-decoration: none;
+	color: #004094;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
 .clearfix {
 	overflow: auto;
 }
@@ -72,6 +81,7 @@ p {
 	padding: 5px;
 	border-top: 3px solid #4B2E83;
 	border-bottom: 3px solid #4B2E83;
+	margin-bottom: 20px;
 }
 
 #header-logo-container {
@@ -101,7 +111,7 @@ p {
 	float: right;
 	height: 200px;
 	width: auto;
-	padding: 30px 10px;
+	padding: 10px 10px;
 }
 
 #contact-info {
