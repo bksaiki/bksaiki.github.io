@@ -22,7 +22,7 @@
          (img ([id "personal-image"] [src "resources/bsaiki.jpg"] [alt "Brett Saiki"]))
          (p ,@(apply insert-links *self-description*))
          ,(insert-table "contact-info" *contact-info*)
-         (p ([class "note"]) "If you wish to contact me about my research, please use my UW email address")
+         (p ([class "note"]) "* If you wish to contact me about my research, please use my UW email address.")
          ,(insert-table "contact-info" *personal-links*)))
        (h3 "Research")
        (div ([class "section-body"])

@@ -5,7 +5,7 @@
 
 ;; Top level
 (define *name* "Brett Saiki")
-(define *out-dir* "html")
+(define *out-dir* "docs")
 (define *index-page* "index.html")
 
 ;; Sections
@@ -25,8 +25,8 @@
   `(("More links" ,@(insert-links "@Resume@" "resources/resume.pdf") ,@(insert-links "@Github@" "https://github.com/bksaiki"))))
 
 (define *research-projects*
-  `(("@Herbie@ - a tool for minimizing error in floating-point expressions" "https://github.com/uwplse/herbie")
-    ("@FPBench@ - a collection of benchmarks, compilers, and standards for the floating-point research community" "https://github.com/FPBench/FPBench")))
+  `(("@Herbie@ - a tool for minimizing error in floating-point expressions." "https://github.com/uwplse/herbie")
+    ("@FPBench@ - a collection of benchmarks, compilers, and standards for the floating-point research community." "https://github.com/FPBench/FPBench")))
 
 (define *side-projects*
   `(("@Minim@ - a Scheme-like language inspired by recent work in Racket." "https://github.com/bksaiki/Minim")
