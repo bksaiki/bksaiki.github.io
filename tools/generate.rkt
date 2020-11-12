@@ -1,9 +1,9 @@
 #lang racket
 
 (require (only-in xml write-xexpr xexpr->string))
-(require "data.rkt" "common.rkt")
+(require "data.rkt" "common.rkt" "pages.rkt")
 
-(define (top-generate out)
+(define (generate-main out)
   (fprintf out "<!doctype html>\n")
   (write-xexpr
    `(html
@@ -47,7 +47,13 @@
 
 (module+ main
   (printf "Generating website pages...\n")
-  (call-with-output-file (build-path *out-dir* *index-page*)
+  (call-with-output-file (build-path *out-dir* *main-page*)
     #:exists 'replace
-    (λ (out) (top-generate out)))
-  (printf "Done.\n"))
+    (λ (out) (generate-main out)))
+  (printf "Main page created\n")
+  (call-with-output-file (build-path *out-dir* *pages-index*)
+    #:exists 'replace
+    (λ (out) (generate-index out)))
+  (printf "Pages created\n")
+  (printf "Done\n")
+  (exit 0))

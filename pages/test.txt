@@ -1,0 +1,6 @@
+###BEGIN HEADER###
+date: "2020-11-11"
+title: "First Entry"
+tags: "misc"
+###END HEADER###
+This is the first entry for my pages, a mix of blogs, articles, references, etc. Hopefully, I'll write here often.
