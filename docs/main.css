@@ -1,9 +1,13 @@
 html {
-    background-color: #fafafa;
+	background-color: #fafafa;
+	height: 100%;
 }
 
 body {
-    font-family: Verdana;
+	font-family: Verdana;
+	height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 h2 {
@@ -13,8 +17,8 @@ h2 {
 }
 
 h3 {
+	font-size: 20px;
     text-align: left;
-    font-size: 18px;
     background-color: #DDDDDD;
 	padding: 5px;
 	margin: 10px 5px;
@@ -81,7 +85,7 @@ a:hover {
 	padding: 5px;
 	border-top: 3px solid #4B2E83;
 	border-bottom: 3px solid #4B2E83;
-	margin-bottom: 20px;
+	margin-bottom: 5px;
 }
 
 #header-logo-container {
@@ -98,13 +102,13 @@ a:hover {
 }
 
 #main-section {
-    display: block;
-    height: 100%;
-    max-width: 50em;
-    padding: 0px 30px;
+	display: block;
+	max-width: 50em;
+	min-height: 100%;
+    padding: 0 30px;
     border-left: 1px solid black;
     border-right: 1px solid black;
-    margin: 1em auto;
+	margin: 1em auto;
 }
 
 #personal-image {
@@ -114,16 +118,16 @@ a:hover {
 	padding: 10px 10px;
 }
 
-#contact-info {
+.contact-info {
 	font-size: 14px;
 }
 
-#contact-info th {
+.contact-info th {
 	text-align: right;
 	padding: 2px 5px 0px;
 }
 
-#contact-info td {
+.contact-info td {
 	padding: 2px 5px 0px;
 }
 

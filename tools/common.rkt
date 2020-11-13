@@ -30,9 +30,7 @@
       (values (cons s r) #t links)])))
 
 (define (insert-table id data)
-  `(table ([id ,id])
+  `(table ([class ,id])
     ,@(for/list ([row data])
-       `(tr
-         (th ,(car row))
-         ,@(for/list ([col (cdr row)])
-            `(td ,col))))))
+       `(tr (th ,(car row))
+            ,@(for/list ([col (cdr row)]) `(td ,col))))))

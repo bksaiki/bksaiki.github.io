@@ -28,7 +28,7 @@
        (div ([class "section-body"])
         ,@(for/list ([elem *research-projects*])
            `(p ,@(apply insert-links elem))))
-       (h3 "Side Project")
+       (h3 "Side Projects")
        (div ([class "section-body"])
         ,@(for/list ([elem *side-projects*])
            `(p ,@(apply insert-links elem))))

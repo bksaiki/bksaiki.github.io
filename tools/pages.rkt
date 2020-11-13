@@ -34,16 +34,16 @@
   (values table (drop lines (+ (hash-count table) 2))))
 
 (define (read-body lines name)
-  (let loop ([lines lines] [str ""])
+  (let loop ([lines lines] [strs '()])
     (cond
      [(null? lines)
-      (if (zero? (string-length str))
+      (if (null? strs)
           '()
-          (list str))]
+          (list (string-join (reverse strs) " ")))]
      [else
       (if (zero? (string-length (car lines)))
-          (cons str (loop (cdr lines) ""))
-          (loop (cdr lines) (string-append str " " (car lines))))])))
+          (cons (string-join (reverse strs) " ") (loop (cdr lines) '()))
+          (loop (cdr lines) (cons (car lines) strs)))])))
 
 (define (generate-page fname meta body)
   (define out (open-output-file (build-path *out-dir* fname) #:mode 'text #:exists 'replace))
@@ -56,16 +56,21 @@
      (head
       (meta ([charset "utf-8"]))
        (title ,*name*)
-       (link ([rel "stylesheet"] [type "text/css"] [href "../main.css"])))
+       (link ([rel "stylesheet"] [type "text/css"] [href "../main.css"]))
+       (link ([rel "stylesheet"] [type "text/css"] [href "../pages.css"])))
      (body
       (div ([id "main-section"])
        (div ([id "header"])
         (h2 ([id "header-title"])
          ,*name*))
-       (h4 ,title)
-       (h5 ,date)
-       ,@(for/list ([line lines])
-          (list 'p line)))))
+       (div ([id "back-button"])
+        (p ,@(insert-links "@< Back@" "../pages.html")))
+       (h3 ,title)
+       (div ([class "section-body"])
+        (h4 ([class "pages-header"]) ,date)
+        (div ([class "pages-body"])
+         ,@(for/list ([line lines])
+            (list 'p line)))))))
     out))
 
 (define (generate-page-entry file)
@@ -92,17 +97,27 @@
      (head
       (meta ([charset "utf-8"]))
        (title ,*name*)
-       (link ([rel "stylesheet"] [type "text/css"] [href "main.css"])))
+       (link ([rel "stylesheet"] [type "text/css"] [href "main.css"]))
+       (link ([rel "stylesheet"] [type "text/css"] [href "../pages.css"])))
      (body
       (div ([id "main-section"])
        (div ([id "header"])
         (h2 ([id "header-title"])
          ,*name*))
-       ,@(for/list ([entry entries])
+       (div ([id "back-button"])
+        (p ,@(insert-links "@< Back@" "index.html")))
+       (h3 "Pages")
+       (div ([class "section-body"])
+        (table ([class "pages-table"])
+         (tr
+          (th ([style "font-weight: bold;"]) "Date")
+          (td ([style "font-weight: bold;"]) "Title")
+          (td ([style "font-weight: bold;"]) "Tags")))
+       ,(insert-table "pages-table"
+         (for/list ([entry entries])
           (let ([date (first (hash-ref entry 'date))]
                 [title (first (hash-ref entry 'title))]
                 [link (hash-ref entry 'link)]
                 [tags (hash-ref entry 'tags)])
-           (define table `(,date ,@(insert-links (format "@~a@" title) link) ,@tags))
-           (insert-table "contact-info" (list table)))))))
+            `(,date ,@(insert-links (format "@~a@" title) link) ,@tags))))))))
     out))
