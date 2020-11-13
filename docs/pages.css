@@ -17,17 +17,20 @@
 }
 
 .pages-table th {
-    width: 15%;
-    max-width: 15%;
-    padding: 2px 10px 0px;
+    width: 20%;
+    max-width: 20%;
+    padding: 2px 10px 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     text-align: left;
     font-weight: normal;
 }
 
 .pages-table td {
-    padding: 2px 10px 0px;
-    width: 33%;
-    max-width: 33%;
+    padding: 2px 10px 2px;
+    width: 40%;
+    max-width: 40%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
