@@ -13,7 +13,7 @@
                 #:when (equal? (filename-extension fname) #"txt"))
       fname)]
    [else
-    (printf "Pages directory does not exist!\n")
+    (printf "Blog directory does not exist!\n")
     (list)]))
 
 (define (read-lines lines name)
@@ -57,18 +57,18 @@
       (meta ([charset "utf-8"]))
        (title ,*name*)
        (link ([rel "stylesheet"] [type "text/css"] [href "../main.css"]))
-       (link ([rel "stylesheet"] [type "text/css"] [href "../pages.css"])))
+       (link ([rel "stylesheet"] [type "text/css"] [href "../blog.css"])))
      (body
       (div ([id "main-section"])
        (div ([id "header"])
         (h2 ([id "header-title"])
          ,*name*))
        (div ([id "back-button"])
-        (p ,@(insert-links "@< Back@" "../pages.html")))
+        (p ,@(insert-links "@< Back@" "../blog.html")))
        (h3 ,title)
        (div ([class "section-body"])
-        (h4 ([class "pages-header"]) ,date)
-        (div ([class "pages-body"])
+        (h4 ([class "blog-header"]) ,date)
+        (div ([class "blog-body"])
          ,@(for/list ([line lines])
             (list 'p line)))))))
     out))
@@ -84,8 +84,8 @@
   meta)
 
 (define (generate-index out)
-  (define pages (gather-pages *pages-dir*))
-  (define out-dir (build-path *out-dir* *pages-dir*))
+  (define pages (gather-pages *blog-dir*))
+  (define out-dir (build-path *out-dir* *blog-dir*))
   (unless (directory-exists? out-dir)
     (make-directory out-dir))
   (define entries
@@ -98,7 +98,7 @@
       (meta ([charset "utf-8"]))
        (title ,*name*)
        (link ([rel "stylesheet"] [type "text/css"] [href "main.css"]))
-       (link ([rel "stylesheet"] [type "text/css"] [href "../pages.css"])))
+       (link ([rel "stylesheet"] [type "text/css"] [href "blog.css"])))
      (body
       (div ([id "main-section"])
        (div ([id "header"])
@@ -106,18 +106,16 @@
          ,*name*))
        (div ([id "back-button"])
         (p ,@(insert-links "@< Back@" "index.html")))
-       (h3 "Pages")
+       (h3 "Blog")
        (div ([class "section-body"])
-        (table ([class "pages-table"])
-         (tr
-          (th ([style "font-weight: bold;"]) "Date")
-          (td ([style "font-weight: bold;"]) "Title")
-          (td ([style "font-weight: bold;"]) "Tags")))
-       ,(insert-table "pages-table"
-         (for/list ([entry entries])
-          (let ([date (first (hash-ref entry 'date))]
-                [title (first (hash-ref entry 'title))]
-                [link (hash-ref entry 'link)]
-                [tags (hash-ref entry 'tags)])
-            `(,date ,@(insert-links (format "@~a@" title) link) ,@tags))))))))
+       ,(insert-table "blog-table"
+         (cons
+          (list "Date" "Title" "Tags")
+          (for/list ([entry entries])
+            (let ([date (first (hash-ref entry 'date))]
+                  [title (first (hash-ref entry 'title))]
+                  [link (hash-ref entry 'link)]
+                  [tags (hash-ref entry 'tags)])
+              `(,date ,@(insert-links (format "@~a@" title) link) ,@tags))))
+         #:bold? #t)))))
     out))

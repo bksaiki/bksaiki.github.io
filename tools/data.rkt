@@ -6,9 +6,9 @@
 ;; Top level
 (define *name* "Brett Saiki")
 (define *out-dir* "docs")
-(define *pages-dir* "pages")
+(define *blog-dir* "blog")
 (define *main-page* "index.html")
-(define *pages-index* "pages.html")
+(define *blog-index* "blog.html")
 
 ;; Sections
 (define *self-description*
@@ -24,7 +24,7 @@
     ("Phone Number" "949-237-0408")))
 
 (define *personal-links*
-  `(("More links" ,@(insert-links "@Pages@"  "pages.html")  
+  `(("More links" ,@(insert-links "@Blog@"  "blog.html")  
                   ,@(insert-links "@Github@" "https://github.com/bksaiki")
                   ,@(insert-links "@Resume@" "resources/resume.pdf"))))
 

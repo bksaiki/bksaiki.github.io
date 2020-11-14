@@ -29,8 +29,18 @@
      [else
       (values (cons s r) #t links)])))
 
-(define (insert-table id data)
+(define (insert-table-row row #:bold? [bold? #f])
+  (if bold?
+      `(tr (th ([style "font-weight: bold"]) ,(car row))
+        ,@(for/list ([col (cdr row)])
+            `(td ([style "font-weight: bold"]) ,col)))
+      `(tr (th ,(car row))
+        ,@(for/list ([col (cdr row)])
+            `(td ,col)))))
+
+(define (insert-table id data #:bold? [bold? #f])
   `(table ([class ,id])
-    ,@(for/list ([row data])
-       `(tr (th ,(car row))
-            ,@(for/list ([col (cdr row)]) `(td ,col))))))
+    ,@(if bold?
+          (cons (insert-table-row (car data) #:bold? #t)
+                (for/list ([row (cdr data)]) (insert-table-row row)))
+          (for/list ([row data]) (insert-table-row row)))))     

@@ -51,9 +51,9 @@
     #:exists 'replace
     (λ (out) (generate-main out)))
   (printf "Main page created\n")
-  (call-with-output-file (build-path *out-dir* *pages-index*)
+  (call-with-output-file (build-path *out-dir* *blog-index*)
     #:exists 'replace
     (λ (out) (generate-index out)))
-  (printf "Pages created\n")
+  (printf "Blog created\n")
   (printf "Done\n")
   (exit 0))
