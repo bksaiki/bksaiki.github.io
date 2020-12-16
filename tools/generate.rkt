@@ -1,7 +1,7 @@
 #lang racket
 
 (require (only-in xml write-xexpr xexpr->string))
-(require "data.rkt" "common.rkt" "pages.rkt")
+(require "data.rkt" "common.rkt" "blog.rkt")
 
 (define (generate-main out)
   (fprintf out "<!doctype html>\n")

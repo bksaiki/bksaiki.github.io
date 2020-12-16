@@ -1,7 +1,9 @@
 #lang racket
 
 (require (only-in xml write-xexpr xexpr->string)
+         (only-in markdown parse-markdown)
          "common.rkt" "data.rkt")
+
 (provide generate-index)
 
 (define (gather-pages dir)
@@ -10,46 +12,39 @@
    [(directory-exists? path)
     (for/list ([fname (in-directory dir)]
                 #:when (file-exists? fname)
-                #:when (equal? (filename-extension fname) #"txt"))
+                #:when (equal? (filename-extension fname) #"md"))
       fname)]
    [else
     (printf "Blog directory does not exist!\n")
     (list)]))
 
 (define (read-lines lines name)
-  (unless (equal? (first lines) "###BEGIN HEADER###")
+  (unless (equal? (first lines) "---")
     (error 'read-lines "Expected a header at the top of '~a'" name))
   (define table (make-hash))
-  (for ([line (cdr lines)] #:break (equal? line "###END HEADER###"))
+  (for ([line (cdr lines)] #:break (equal? line "---"))
     (define kv (string-split line ": "))
     (unless (> (length kv) 1)
       (error 'read-lines "Expected a '<key>: <value> ...' binding in '~a'" name))
-    (define key (string->symbol (car kv)))
+    (define key (string->symbol (string-downcase (car kv))))
     (define vals
       (for/list ([v (cdr kv)])
         (if (and (string-prefix? v "\"") (string-suffix? v "\""))
             (substring v 1 (- (string-length v) 1))
             v)))
     (hash-set! table key vals))
-  (values table (drop lines (+ (hash-count table) 2))))
+  (values table (filter non-empty-string? (drop lines (+ (hash-count table) 3)))))
 
-(define (read-body lines name)
-  (let loop ([lines lines] [strs '()])
-    (cond
-     [(null? lines)
-      (if (null? strs)
-          '()
-          (list (string-join (reverse strs) " ")))]
-     [else
-      (if (zero? (string-length (car lines)))
-          (cons (string-join (reverse strs) " ") (loop (cdr lines) '()))
-          (loop (cdr lines) (cons (car lines) strs)))])))
+(define (read-body lines)
+  (for/list ([line lines])
+    (car (parse-markdown line))))
 
 (define (generate-page fname meta body)
   (define out (open-output-file (build-path *out-dir* fname) #:mode 'text #:exists 'replace))
   (define title (first (hash-ref meta 'title)))
   (define date (first (hash-ref meta 'date)))
-  (define lines (read-body body fname))
+  (define updated (first (hash-ref meta 'last)))
+  (define lines (read-body body))
   (fprintf out "<!doctype html>\n")
   (write-xexpr
    `(html
@@ -69,15 +64,16 @@
        (div ([class "section-body"])
         (h4 ([class "blog-header"]) ,date)
         (div ([class "blog-body"])
-         ,@(for/list ([line lines])
-            (list 'p line)))))))
+          ,@lines)
+        (div ([id "postscript"])
+          (p ,(format "Last updated: ~a" updated)))))))
     out))
 
 (define (generate-page-entry file)
   (define in (open-input-file file #:mode 'text))
   (define lines (port->lines in #:close? #t))
   (define fname (path->string file))
-  (define fname* (string-replace fname ".txt" ".html"))
+  (define fname* (string-replace fname ".md" ".html"))
   (define-values (meta body) (read-lines lines fname))
   (hash-set! meta 'link fname*)
   (generate-page fname* meta body)
