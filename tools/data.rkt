@@ -24,9 +24,10 @@
     ("Phone Number" "949-237-0408")))
 
 (define *personal-links*
-  `(("More links" ,@(insert-links "@Blog@"  "blog.html")  
+  `(("More links" ,@(insert-links "@LinkedIn@" "https://linkedin.com/in/brettsaiki")
+                  ,@(insert-links "@Resume@" "resources/resume.pdf")
                   ,@(insert-links "@Github@" "https://github.com/bksaiki")
-                  ,@(insert-links "@Resume@" "resources/resume.pdf"))))
+                  ,@(insert-links "@Blog@"  "blog.html"))))
 
 (define *research-projects*
   `(("@Herbie@ - a tool for minimizing error in floating-point expressions." "https://github.com/uwplse/herbie")
