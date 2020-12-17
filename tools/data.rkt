@@ -13,15 +13,13 @@
 ;; Sections
 (define *self-description*
   (list
-    "My name is Brett Saiki. I am a second-year undergraduate student at the University of Washington engaged in research on computer number systems. I work with @Zach Tatlock@, @Bill Zorn@, and @Pavel Panchekha@ on FPBench and Herbie. Check them out!"
+    "My name is Brett Saiki. I am a second-year undergraduate student at the University of Washington engaged in research on computer number systems and optimization of floating-point expressions. I am advised by @Zach Tatlock@ and @Pavel Panchekha@, and I currently work on Herbie and FPBench."
     "https://homes.cs.washington.edu/~ztatlock/"
-    "https://homes.cs.washington.edu/~billzorn/"
     "https://pavpanchekha.com/"))
 
 (define *contact-info*
   `(("UW Email" ,@(insert-links "@bsaiki@@cs.washington.edu@" "mailto:bsaiki@cs.washington.edu"))
-    ("Personal Email" ,@(insert-links "@bksaiki@@gmail.com@" "mailtobksaiki@gmail.com"))
-    ("Phone Number" "949-237-0408")))
+    ("Personal Email" ,@(insert-links "@bksaiki@@gmail.com@" "mailtobksaiki@gmail.com"))))
 
 (define *personal-links*
   `(("More links" ,@(insert-links "@LinkedIn@" "https://linkedin.com/in/brettsaiki")
