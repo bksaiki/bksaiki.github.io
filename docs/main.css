@@ -105,10 +105,10 @@ a:hover {
 	display: block;
 	max-width: 50em;
 	min-height: 100%;
-    padding: 0 30px 15px;
+    padding: 10px 30px 15px;
     border-left: 1px solid black;
     border-right: 1px solid black;
-	margin: 1em auto;
+	margin: 0 auto;
 }
 
 #personal-image {

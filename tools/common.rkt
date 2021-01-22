@@ -1,6 +1,6 @@
 #lang racket
 
-(provide insert-links insert-table)
+(provide insert-links insert-table string->date)
 
 (define (insert-links str . links)
   (define splits
@@ -43,4 +43,27 @@
     ,@(if bold?
           (cons (insert-table-row (car data) #:bold? #t)
                 (for/list ([row (cdr data)]) (insert-table-row row)))
-          (for/list ([row data]) (insert-table-row row)))))     
+          (for/list ([row data]) (insert-table-row row)))))
+
+(define (month->string month)
+  (match month
+    [(or "1" "01")  "January"]
+    [(or "2" "02")  "February"]
+    [(or "3" "03")  "March"]
+    [(or "4" "04")  "April"]
+    [(or "5" "05")  "May"]
+    [(or "6" "06")  "June"]
+    [(or "7" "07")  "July"]
+    [(or "8" "08")  "August"]
+    [(or "9" "08")  "September"]
+    ["10"           "October"]
+    ["11"           "November"]
+    ["12"           "December"]
+    [_ (error 'month->string "Not a month ~a\n" month)]))
+
+(define (string->date str)
+  (define splits (string-split str "-"))
+  (unless (= (length splits) 3)
+    (error 'string->date "Illegal date ~a\n" str))
+  (define month (month->string (second splits)))
+  (format "~a ~a, ~a\n" month (third splits) (first splits)))

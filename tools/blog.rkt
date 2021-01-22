@@ -42,8 +42,8 @@
 (define (generate-page fname meta body)
   (define out (open-output-file (build-path *out-dir* fname) #:mode 'text #:exists 'replace))
   (define title (first (hash-ref meta 'title)))
-  (define date (first (hash-ref meta 'date)))
-  (define updated (first (hash-ref meta 'last)))
+  (define date (string->date (first (hash-ref meta 'date))))
+  (define updated (string->date (first (hash-ref meta 'last))))
   (define lines (read-body body))
   (fprintf out "<!doctype html>\n")
   (write-xexpr
@@ -64,9 +64,9 @@
        (div ([class "section-body"])
         (h4 ([class "blog-header"]) ,date)
         (div ([class "blog-body"])
-          ,@lines)
-        (div ([id "postscript"])
-          (p ,(format "Last updated: ~a" updated)))))))
+          ,@(append lines)
+          (div ([id "postscript"])
+            (p ,(format "Last updated: ~a" updated))))))))
     out))
 
 (define (generate-page-entry file)
@@ -108,7 +108,7 @@
          (cons
           (list "Date" "Title" "Tags")
           (for/list ([entry entries])
-            (let ([date (first (hash-ref entry 'date))]
+            (let ([date (string->date (first (hash-ref entry 'date)))]
                   [title (first (hash-ref entry 'title))]
                   [link (hash-ref entry 'link)]
                   [tags (hash-ref entry 'tags)])
