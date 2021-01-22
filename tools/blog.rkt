@@ -36,8 +36,21 @@
   (values table (filter non-empty-string? (drop lines (+ (hash-count table) 3)))))
 
 (define (read-body lines)
-  (for/list ([line lines])
-    (car (parse-markdown line))))
+  (let loop ([lines lines] [parsed '()])
+    (cond
+     [(null? lines) (reverse parsed)]
+     [else
+      (let ([ps (car (parse-markdown (car lines)))])
+        (cond
+         [(and (not (null? parsed))  ; collapse block quotes
+               (equal? (car ps) 'blockquote)
+               (equal? (caar parsed) 'blockquote))
+          (if (null? (cddr ps))
+              (loop (cdr lines) parsed)
+              (let ([ps* (caddr ps)] [parsed* (cddar parsed)])
+                (loop (cdr lines) (cons `(blockquote () ,@parsed* ,ps*) (cdr parsed)))))]
+         [else
+          (loop (cdr lines) (cons ps parsed))]))])))
 
 (define (generate-page fname meta body)
   (define out (open-output-file (build-path *out-dir* fname) #:mode 'text #:exists 'replace))
@@ -76,6 +89,8 @@
   (define fname* (string-replace fname ".md" ".html"))
   (define-values (meta body) (read-lines lines fname))
   (hash-set! meta 'link fname*)
+  (printf "Rendering \"~a\" ...\n"
+    (first (hash-ref meta 'title (list "Unnamed"))))
   (generate-page fname* meta body)
   meta)
 
@@ -86,7 +101,8 @@
     (make-directory out-dir))
   (define entries
     (sort (map generate-page-entry pages) <
-      #:key (λ (x) (string->number (string-replace (hash-ref x 'date) "-" "")))))
+      #:key (λ (x) (let ([date (first (hash-ref x 'date))])
+                     (string->number (string-replace date "-" ""))))))
   (fprintf out "<!doctype html>\n")
   (write-xexpr
    `(html
