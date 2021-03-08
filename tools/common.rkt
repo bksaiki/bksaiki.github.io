@@ -61,9 +61,10 @@
     ["12"           "December"]
     [_ (error 'month->string "Not a month ~a\n" month)]))
 
-(define (string->date str)
+(define (string->date str #:short-month [sm? #f])
   (define splits (string-split str "-"))
   (unless (= (length splits) 3)
     (error 'string->date "Illegal date ~a\n" str))
   (define month (month->string (second splits)))
-  (format "~a ~a, ~a\n" month (third splits) (first splits)))
+  (define month* (if sm? (substring month 0 3) month))
+  (format "~a ~a, ~a\n" month* (third splits) (first splits)))

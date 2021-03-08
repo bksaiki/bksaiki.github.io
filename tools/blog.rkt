@@ -124,7 +124,7 @@
          (cons
           (list "Date" "Title" "Tags")
           (for/list ([entry entries])
-            (let ([date (string->date (first (hash-ref entry 'date)))]
+            (let ([date (string->date (first (hash-ref entry 'date)) #:short-month #t)]
                   [title (first (hash-ref entry 'title))]
                   [link (hash-ref entry 'link)]
                   [tags (hash-ref entry 'tags)])

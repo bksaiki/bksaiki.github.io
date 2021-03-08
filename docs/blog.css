@@ -31,21 +31,21 @@
     width: 100%;
     max-width: 100%;
     text-align: left;
-}
-
-.blog-table th {
-    width: 20%;
-    max-width: 20%;
-    padding: 2px 10px 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+.blog-table th {
+    width: 10%;
+    max-width: 15%;
+    padding: 2px 10px 2px;
+}
+
 .blog-table td {
     padding: 2px 10px 2px;
     width: 40%;
-    max-width: 40%;
+    max-width: 45%;
 }
 
 #back-button {

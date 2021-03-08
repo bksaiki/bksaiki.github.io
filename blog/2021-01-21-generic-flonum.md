@@ -1,11 +1,11 @@
 ---
-Date: 2020-01-21
-Title: "Publishing generic-flonum package"
-Last: 2020-01-21
+Date: 2021-01-21
+Title: "Publishing the generic-flonum package"
+Last: 2021-03-07
 Tags: misc
 ---
 
-Because of an upcoming paper, I created an alternate MPFR interface in Racket. I posted in the previous blog, that I was planning on extracting that code into a package for public use. As of today, that library has officially been cleaned up, documented, and published in the Racket Package Index. To try it out, install Racket and run `raco pkg install generic-flonum`. Here is an excerpt from the documentation.
+As a side effect of recent work, I created an alternate MPFR interface in Racket. I posted in the previous blog, that I was planning on extracting that code into a package for public use. As of today, that library has officially been cleaned up, documented, and published in the Racket Package Index. To try it out, install Racket and run `raco pkg install generic-flonum`. Here is an excerpt from the documentation.
 
 >
 > While the [math/bigfloat](https://docs.racket-lang.org/math/bigfloat.html) interface is sufficient for most high-precision computing, it is lacking in a couple areas. Mainly, it does not properly emulate subnormal arithmetic or allow the exponent range to be changed.
