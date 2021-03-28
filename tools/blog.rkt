@@ -33,24 +33,35 @@
             (substring v 1 (- (string-length v) 1))
             v)))
     (hash-set! table key vals))
-  (values table (filter non-empty-string? (drop lines (+ (hash-count table) 3)))))
+  (values table (drop lines (+ (hash-count table) 3))))
 
 (define (read-body lines)
-  (let loop ([lines lines] [parsed '()])
+  (let loop ([lines lines]  [parsed '()] [space? #t])
     (cond
      [(null? lines) (reverse parsed)]
      [else
-      (let ([ps (car (parse-markdown (car lines)))])
-        (cond
-         [(and (not (null? parsed))  ; collapse block quotes
-               (equal? (car ps) 'blockquote)
-               (equal? (caar parsed) 'blockquote))
-          (if (null? (cddr ps))
-              (loop (cdr lines) parsed)
-              (let ([ps* (caddr ps)] [parsed* (cddar parsed)])
-                (loop (cdr lines) (cons `(blockquote () ,@parsed* ,ps*) (cdr parsed)))))]
-         [else
-          (loop (cdr lines) (cons ps parsed))]))])))
+      (define ps (parse-markdown (car lines)))
+      (cond
+       [(null? ps) (loop (cdr lines) parsed #t)]
+       [(and (not (null? parsed)) (not space?) ; collapse paragraphs
+             (equal? (caar ps) 'p)
+             (equal? (caar parsed) 'p))
+        (if (null? (cddar ps))
+            (loop (cdr lines) parsed #f)
+            (let ([ps* (cddar ps)] [parsed* (cddar parsed)])
+              (loop (cdr lines)
+                    (cons `(p () ,@parsed* " " ,@ps*) (cdr parsed))
+                    #f)))]
+       [(and (not (null? parsed)) (not space?)  ; collapse block quotes
+             (equal? (caar ps) 'blockquote)
+             (equal? (caar parsed) 'blockquote))
+        (if (null? (cddar ps))
+            (loop (cdr lines) parsed #f)
+            (let ([ps* (caddar ps)] [parsed* (cddar parsed)])
+              (loop (cdr lines)
+                    (cons `(blockquote () ,@parsed* ,ps*) (cdr parsed))
+                    #f)))]
+       [else (loop (cdr lines) (cons (car ps) parsed) #f)])])))
 
 (define (generate-page fname meta body)
   (define out (open-output-file (build-path *out-dir* fname) #:mode 'text #:exists 'replace))

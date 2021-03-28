@@ -7,7 +7,6 @@ Tags: misc
 
 As a side effect of recent work, I created an alternate MPFR interface in Racket. I posted in the previous blog, that I was planning on extracting that code into a package for public use. As of today, that library has officially been cleaned up, documented, and published in the Racket Package Index. To try it out, install Racket and run `raco pkg install generic-flonum`. Here is an excerpt from the documentation.
 
->
 > While the [math/bigfloat](https://docs.racket-lang.org/math/bigfloat.html) interface is sufficient for most high-precision computing, it is lacking in a couple areas. Mainly, it does not properly emulate subnormal arithmetic or allow the exponent range to be changed.
 > 
 > Normally, neither of these problems cause concern. For example, if a user intends to find an approximate value for some computation on the reals, then subnormal arithmetic or a narrower exponent range is not particular useful. However, if a user wants to know the result of a computation specifically in some format, say half-precision, then math/bigfloat is insufficient.
