@@ -42,5 +42,11 @@
     ("@Herbie web demo@ - an interactive page that runs programs through Herbie. Try it out!" "https://herbie.uwplse.org/demo")))
 
 (define *news-entries*
-  `(("October 28, 2020" "I released Minim version 0.1.0, the first release for the project, with minimal support for symbols, numbers, pairs, lists, and lambdas. It's hilarious that you can calculate e^x but you can't print \"Hello, World!\". Next steps: strings, hash tables, vectors, and everything else a language should have..." "https://github.com/bksaiki/Minim")
-    ("June 24, 2020" "I attended FPTalks 2020, the first annual research conference hosted by the FPBench team, complete with 16 speakers, Zoom, and virtual hangouts. Please join us next year in June. Check out the @FPBench community@ page for more information." "https://fpbench.org")))
+  `(("March 27, 2020" "I released Minim version 0.2.1. The language contains over 130 built-in procedures and constants as well
+     as a small standard library. As of 0.2.0, Minim can be run in a REPL or on a file.")
+    ("October 28, 2020" "I released Minim version 0.1.0, the first release for the project, with minimal support for symbols, numbers, pairs,
+      lists, and lambdas. It's hilarious that you can calculate e^x but you can't print \"Hello, World!\". Next steps: strings, hash tables,
+      vectors, and everything else a language should have..." "https://github.com/bksaiki/Minim")
+    ("June 24, 2020" "I attended FPTalks 2020, the first annual research conference hosted by the FPBench team, complete with
+      16 speakers, Zoom, and virtual hangouts. Please join us next year in June. Check out the @FPBench community@ page for more
+      information." "https://fpbench.org")))
