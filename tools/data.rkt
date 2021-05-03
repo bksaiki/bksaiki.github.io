@@ -31,6 +31,9 @@
   `(("@Herbie@ - a tool for minimizing error in floating-point expressions." "https://github.com/uwplse/herbie")
     ("@FPBench@ - a collection of benchmarks, compilers, and standards for the floating-point research community." "https://github.com/FPBench/FPBench")))
 
+(define *publications*
+  `(("ARITH 2021" "Combining Precision Tuning and Rewriting" "Brett Saiki, Oliver Flatt, Chandrakana Nandi, Pavel Panchekha, Zach Tatlock" "#")))
+
 (define *side-projects*
   `(("@Minim@ - a Scheme-like language inspired by recent work in Racket." "https://github.com/bksaiki/Minim")
     ("@ENL@ - a library of alternate number systems written in C. Currently supports quad-double." "https://github.com/bksaiki/ENL")

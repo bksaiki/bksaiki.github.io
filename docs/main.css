@@ -131,6 +131,18 @@ a:hover {
 	padding: 2px 5px 0px;
 }
 
+#publication-table {
+	padding: 10px 0px 10px;
+}
+
+#publication-table td {
+	padding: 2px 10px 0px
+}
+
+#publication-table a {
+	padding: 2px 5px 0px 0px;
+}
+
 /* Titlebar (not used) */
 
 #titlebar {
