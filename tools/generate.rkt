@@ -32,12 +32,16 @@
        (div ([class "section-body"])
         (table ([id "publication-table"])
           ,@(for/list ([elem *publications*])
-              (let ([conf (first elem)] [name (second elem)]
-                    [authors (third elem)] [pdf (fourth elem)])
-                `(tr (td ,conf)
-                     (td (b ,name)
+              (let ([conf (first elem)]
+                    [name (second elem)]
+                    [authors (third elem)]
+                    [pdf (and (>= (length elem) 4) (fourth elem))]
+                    [talk (and (>= (length elem) 5) (fifth elem))])
+                `(tr (td (b ,name)
                          (br ,authors)
-                         ,(first (insert-links "@paper@" pdf))))))))
+                         (i ,conf)
+                         (br ,(if pdf (first (insert-links "@paper@" pdf)) "")
+                             ,(if talk (first (insert-links "@talk@" talk)) ""))))))))
        (h3 "Side Projects")
        (div ([class "section-body"])
         ,@(for/list ([elem *side-projects*])

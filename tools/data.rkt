@@ -32,7 +32,7 @@
     ("@FPBench@ - a collection of benchmarks, compilers, and standards for the floating-point research community." "https://github.com/FPBench/FPBench")))
 
 (define *publications*
-  `(("ARITH 2021" "Combining Precision Tuning and Rewriting" "Brett Saiki, Oliver Flatt, Chandrakana Nandi, Pavel Panchekha, Zach Tatlock" "#")))
+  `(("IEEE Symposium on Computer Arithmetic (ARITH) 2021" "Combining Precision Tuning and Rewriting" "Brett Saiki, Oliver Flatt, Chandrakana Nandi, Pavel Panchekha, Zachary Tatlock" "https://herbie.uwplse.org/arith21-paper.pdf" "https://youtu.be/ytWhp0I8KVw")))
 
 (define *side-projects*
   `(("@Minim@ - a Scheme-like language inspired by recent work in Racket." "https://github.com/bksaiki/Minim")
