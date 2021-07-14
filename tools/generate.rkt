@@ -31,17 +31,16 @@
        (h3 "Publications")
        (div ([class "section-body"])
         (table ([id "publication-table"])
-          ,@(for/list ([elem *publications*])
-              (let ([conf (first elem)]
-                    [name (second elem)]
-                    [authors (third elem)]
-                    [pdf (and (>= (length elem) 4) (fourth elem))]
-                    [talk (and (>= (length elem) 5) (fifth elem))])
-                `(tr (td (b ,name)
-                         (br ,authors)
+          ,@(for/list ([entry *publications*])
+              (let ([conf (dict-ref entry 'conf)]
+                    [title (dict-ref entry 'title)]
+                    [author (dict-ref entry 'author)]
+                    [other (filter-not (compose (curry set-member? '(conf title author)) car) entry)])
+                `(tr (td (b ,title)
+                         (br ,author)
                          (i ,conf)
-                         (br ,(if pdf (first (insert-links "@paper@" pdf)) "")
-                             ,(if talk (first (insert-links "@talk@" talk)) ""))))))))
+                         (br ,@(for/list ([elem other])
+                                (first (insert-links (format "@~a@" (car elem)) (cdr elem)))))))))))
        (h3 "Side Projects")
        (div ([class "section-body"])
         ,@(for/list ([elem *side-projects*])
@@ -61,13 +60,13 @@
 
 (module+ main
   (printf "Generating website pages...\n")
+  (printf "Rendering main page ... \n")
   (call-with-output-file (build-path *out-dir* *main-page*)
     #:exists 'replace
     (λ (out) (generate-main out)))
-  (printf "Main page created\n")
+  (printf "Rendering blog ...\n")
   (call-with-output-file (build-path *out-dir* *blog-index*)
     #:exists 'replace
     (λ (out) (generate-index out)))
-  (printf "Blog created\n")
   (printf "Done\n")
   (exit 0))

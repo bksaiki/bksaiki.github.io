@@ -32,12 +32,16 @@
     ("@FPBench@ - a collection of benchmarks, compilers, and standards for the floating-point research community." "https://github.com/FPBench/FPBench")))
 
 (define *publications*
-  `(("IEEE Symposium on Computer Arithmetic (ARITH) 2021" "Combining Precision Tuning and Rewriting" "Brett Saiki, Oliver Flatt, Chandrakana Nandi, Pavel Panchekha, Zachary Tatlock" "https://herbie.uwplse.org/arith21-paper.pdf" "https://youtu.be/ytWhp0I8KVw")))
+  '(((conf . "IEEE Symposium on Computer Arithmetic (ARITH) 2021")
+     (title . "Combining Precision Tuning and Rewriting")
+     (author . "Brett Saiki, Oliver Flatt, Chandrakana Nandi, Pavel Panchekha, Zachary Tatlock")
+     (paper . "https://herbie.uwplse.org/arith21-paper.pdf")
+     (talk . "https://youtu.be/ytWhp0I8KVw"))))
 
 (define *side-projects*
   `(("@Minim@ - a Scheme-like language inspired by recent work in Racket." "https://github.com/bksaiki/Minim")
     ("@ENL@ - a library of alternate number systems written in C. Currently supports quad-double." "https://github.com/bksaiki/ENL")
-    ("@MathSolver@ - a mathematical evaluator written in C++ (creative name in the works)." "https://github.com/bksaiki/MathSolver")))
+    ("@generic-flonum@ - Racket interface for MPFR that supports subnormal numbers and variable exponent sizes." "https://docs.racket-lang.org/generic-flonum/index.html")))
 
 (define *resource-links*
   `(("@FPBench community@ - FPBench, FPCore, number systems and more. Please start here if you want to know more about the FPBench Project." "https://fpbench.org")

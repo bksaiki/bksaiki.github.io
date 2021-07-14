@@ -100,7 +100,7 @@
   (define fname* (string-replace fname ".md" ".html"))
   (define-values (meta body) (read-lines lines fname))
   (hash-set! meta 'link fname*)
-  (printf "Rendering \"~a\" ...\n"
+  (printf " Rendering \"~a\" ...\n"
     (first (hash-ref meta 'title (list "Unnamed"))))
   (generate-page fname* meta body)
   meta)
