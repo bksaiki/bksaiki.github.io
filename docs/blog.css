@@ -1,5 +1,5 @@
 .blog-header {
-    font-size: 18px;
+    font-size: 24px;
 }
 
 .blog-body {
@@ -8,15 +8,15 @@
 
 .blog-body h4 {
     margin: 0px 0px;
-    font-size: 18px;
+    font-size: 20px;
 }
 
 .blog-body p {
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .blog-body p code {
-    font-size: 13px;
+    font-size: 16px;
     background-color: #cccccc;
 }
 
@@ -27,7 +27,7 @@
 }
 
 .blog-table {
-    font-size: 16px;
+    font-size: 18px;
     width: 100%;
     max-width: 100%;
     text-align: left;
@@ -40,6 +40,7 @@
     width: 10%;
     max-width: 15%;
     padding: 2px 10px 2px;
+    font-weight: normal;
 }
 
 .blog-table td {

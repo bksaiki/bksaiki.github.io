@@ -4,20 +4,20 @@ html {
 }
 
 body {
-	font-family: Verdana;
+	font-family: "Trebuchet MS", sans-serif;
 	height: 100%;
     margin: 0;
     padding: 0;
 }
 
 h2 {
-	font-size: 32px;
+	font-size: 40px;
 	font-weight: 600;
 	margin: 5px;
 }
 
 #main-section h3 {
-	font-size: 20px;
+	font-size: 24px;
     text-align: left;
     background-color: #DDDDDD;
 	padding: 5px;
@@ -25,13 +25,13 @@ h2 {
 }
 
 h5 {
-	font-size: 15px;
+	font-size: 18px;
 	margin-top: 5px;
 	margin-bottom: 0px;
 }
 
 p {
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .section-body {
@@ -61,7 +61,7 @@ a:hover {
 }
 
 .note {
-	font-size: 15px;
+	font-size: 17px;
 	padding-right: 5px;
 	padding-left: 5px;
 }
@@ -71,7 +71,7 @@ a:hover {
 }
 
 .news-entry p {
-	font-size: 15px;
+	font-size: 17px;
 	margin-top: 2px;
 	margin-bottom: 5px;
 }
@@ -119,7 +119,7 @@ a:hover {
 }
 
 .contact-info {
-	font-size: 15px;
+	font-size: 16px;
 }
 
 .contact-info th {
@@ -129,6 +129,10 @@ a:hover {
 
 .contact-info td {
 	padding: 2px 5px 0px;
+}
+
+#publication-table {
+	font-size: 18px;
 }
 
 #publication-table td {

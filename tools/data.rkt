@@ -49,7 +49,7 @@
     ("@Herbie web demo@ - an interactive page that runs programs through Herbie. Try it out!" "https://herbie.uwplse.org/demo")))
 
 (define *news-entries*
-  `(("July 24, 2021" "I gave a talk at @FPTalks 2021@, the second annual research conference hosted by the FPBench team,
+  `(("July 14, 2021" "I gave a talk at @FPTalks 2021@, the second annual research conference hosted by the FPBench team,
      complete with 20 virtual talks. Please join us next year (hopefully in person!). My talk was a reduced
      version of my and Oliver Flatt's talk at ARITH 2021."
     "http://fpbench.org/talks/fptalks21.html")

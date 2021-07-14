@@ -111,7 +111,7 @@
   (unless (directory-exists? out-dir)
     (make-directory out-dir))
   (define entries
-    (sort (map generate-page-entry pages) <
+    (sort (map generate-page-entry pages) >
       #:key (λ (x) (let ([date (first (hash-ref x 'date))])
                      (string->number (string-replace date "-" ""))))))
   (fprintf out "<!doctype html>\n")
