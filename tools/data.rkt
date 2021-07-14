@@ -49,7 +49,11 @@
     ("@Herbie web demo@ - an interactive page that runs programs through Herbie. Try it out!" "https://herbie.uwplse.org/demo")))
 
 (define *news-entries*
-  `(("March 27, 2020" "I released Minim version 0.2.1. The language contains over 130 built-in procedures and constants as well
+  `(("July 24, 2021" "I gave a talk at @FPTalks 2021@, the second annual research conference hosted by the FPBench team,
+     complete with 20 virtual talks. Please join us next year (hopefully in person!). My talk was a reduced
+     version of my and Oliver Flatt's talk at ARITH 2021."
+    "http://fpbench.org/talks/fptalks21.html")
+    ("March 27, 2021" "I released Minim version 0.2.1. The language contains over 130 built-in procedures and constants as well
      as a small standard library. As of 0.2.0, Minim can be run in a REPL or on a file.")
     ("October 28, 2020" "I released Minim version 0.1.0, the first release for the project, with minimal support for symbols, numbers, pairs,
       lists, and lambdas. It's hilarious that you can calculate e^x but you can't print \"Hello, World!\". Next steps: strings, hash tables,
