@@ -2,7 +2,7 @@
 Date: 2021-01-21
 Title: "Publishing the generic-flonum package"
 Last: 2021-03-07
-Tags: misc
+Tags: research
 ---
 
 As a side effect of recent work, I created an alternate MPFR interface in Racket. I posted in the previous blog, that I was planning on extracting that code into a package for public use. As of today, that library has officially been cleaned up, documented, and published in the Racket Package Index. To try it out, install Racket and run `raco pkg install generic-flonum`. Here is an excerpt from the documentation.
