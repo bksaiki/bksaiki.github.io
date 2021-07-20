@@ -19,7 +19,7 @@
 
 (define *contact-info*
   `(("UW Email" ,@(insert-links "@bsaiki@@cs.washington.edu@" "mailto:bsaiki@cs.washington.edu"))
-    ("Personal Email" ,@(insert-links "@bksaiki@@gmail.com@" "mailtobksaiki@gmail.com"))))
+    ("Personal Email" ,@(insert-links "@bksaiki@@gmail.com@" "mailto:bksaiki@gmail.com"))))
 
 (define *personal-links*
   `(("More links" ,@(insert-links "@LinkedIn@" "https://linkedin.com/in/brettsaiki")
@@ -50,8 +50,8 @@
 
 (define *news-entries*
   `(("July 14, 2021" "I gave a talk at @FPTalks 2021@, the second annual research conference hosted by the FPBench team,
-     complete with 20 virtual talks. Please join us next year (hopefully in person!). My talk was a reduced
-     version of my and Oliver Flatt's talk at ARITH 2021."
+     complete with 20 virtual talks. Please join us next year (hopefully in person!). My talk was a shortened version
+     of the one Oliver and I gave at ARITH '21."
     "http://fpbench.org/talks/fptalks21.html")
     ("March 27, 2021" "I released Minim version 0.2.1. The language contains over 130 built-in procedures and constants as well
      as a small standard library. As of 0.2.0, Minim can be run in a REPL or on a file.")
