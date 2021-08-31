@@ -13,7 +13,8 @@
 ;; Sections
 (define *self-description*
   (list
-    "My name is Brett Saiki. I am a second-year undergraduate student at the University of Washington engaged in research on computer number systems and optimization of floating-point expressions. I am advised by @Zach Tatlock@ and @Pavel Panchekha@, and I currently work on Herbie and FPBench."
+    "My name is Brett Saiki. I am a third-year undergraduate student at the University of Washington engaged in research on computer number systems
+    and optimization of floating-point expressions. I am advised by @Zach Tatlock@ and @Pavel Panchekha@, and I currently work on Herbie and FPBench."
     "https://homes.cs.washington.edu/~ztatlock/"
     "https://pavpanchekha.com/"))
 
@@ -32,7 +33,11 @@
     ("@FPBench@ - a collection of benchmarks, compilers, and standards for the floating-point research community." "https://github.com/FPBench/FPBench")))
 
 (define *publications*
-  '(((conf . "IEEE Symposium on Computer Arithmetic (ARITH) 2021")
+  '(((conf . "Object-Oriented Programming, Systems, Languages & Applications (OOPSLA) 2021")
+     (title . "Rewrite Rule Inference Using Equality Saturation")
+     (author . "Chandrakana Nandi, Max Willsey, Amy Zhu, Brett Saiki, Yisu Wang, Adam Anderson, Adriana Schulz, Dan Grossman, Zachary Tatlock")
+     (paper . "https://arxiv.org/pdf/2108.10436.pdf"))
+    ((conf . "IEEE Symposium on Computer Arithmetic (ARITH) 2021")
      (title . "Combining Precision Tuning and Rewriting")
      (author . "Brett Saiki, Oliver Flatt, Chandrakana Nandi, Pavel Panchekha, Zachary Tatlock")
      (paper . "https://herbie.uwplse.org/arith21-paper.pdf")
