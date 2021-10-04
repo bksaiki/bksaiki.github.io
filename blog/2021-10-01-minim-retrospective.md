@@ -36,9 +36,9 @@ The worst feature of this era was the owner-reference
   resources when objects went out of scope.
 Initially, new copies were created every time objects were
   referenced, but with an "improvement", objects
-  could be set as owners or their data of references
+  could be set as owners of their data or references
   of another object's data.
-This required unnecessary amounts of copying objects when,
+This required unnecessary amounts of copying objects,
   annoying equality checks, and hours of debugging
   segmentation faults.
 What I didn't know at the time was Scheme implementations
@@ -64,7 +64,7 @@ Initially, reading source code was rough
   to my frustration, the creation of new bugs.
 In the same release, I added errors with backtracing
   and syntax with source locations which proved to be
-  helpful in the future with debugging.
+  helpful when modifying the standard library.
 
 Minim 0.2.1 and 0.2.2 were expansions of the math
   and list libraries.
@@ -144,7 +144,7 @@ As I've mentioned before, syntax macros are not Scheme-compliant,
   from the standard, usually because of my naive choices.
 A couple examples include the use of `def` instead of `define`
   and the syntax of function definitions.
-I have been thinking long and hard about resolving these syntax differences.
+I am still weighing whether or not to resolve these design differences.
 
 More recently, I have implemented caching for Minim source code files: syntax
   macros are applied and the resulting desguared code is emitted for later use.
