@@ -1,7 +1,7 @@
 ---
-Date: 2021-10-01
+Date: 2021-10-02
 Title: "A one year retrospective on Minim"
-Last: 2021-10-01
+Last: 2021-10-02
 Tags: minim
 ---
 
@@ -13,6 +13,8 @@ Since then, Minim has undergone significant changes in design
 Today Minim is a fully-interpreted language, complete with a small
   standard library, syntax macros (not quite R6RS compliant),
   and many more features.
+To celebrate the past year of development, I have decided to describe
+  my experience designing and implementing the language.
 
 #### The Early Days
 
@@ -24,17 +26,17 @@ By version 0.1.2, the language supported booleans, exact
   user-defined functions, hash tables, vectors,
   and sequences.
 Nearly all of these types since then have undergone
-  structural changes since then.
+  structural changes.
 The set of procedures to create and modify these
   procedures was minimal at the time, just enough
   to be useful.
 
 The worst feature of this era was the owner-reference
-  system in order to know when to free objects when they
-  went out of scope.
-Initially, new copied were created every time they were
+  system that kept track of objects, so it could free
+  resources when objects went out of scope.
+Initially, new copies were created every time objects were
   referenced, but with an "improvement", objects
-  could be set as owners of their data of references
+  could be set as owners or their data of references
   of another object's data.
 This required unnecessary amounts of copying objects when,
   annoying equality checks, and hours of debugging
@@ -78,7 +80,7 @@ By then, issues with parsing motivated me to remake the
 Since then the parser has barely changed and no longer
   hinders development.
 
-#### Standardization and Maturation
+#### Standardization
 
 Development of Minim 0.3.x felt quite different from the
   previous versions.
@@ -92,7 +94,7 @@ However, my design choices began to feel flawed and haphazard
 Implementing procedures and features described in the standards
   became the main goal during this era of development.
 
-The first few changes were performance-related changes: the
+The first few changes were performance-related: the
   addition of a garbage collector and the implementation
   of tail calling.
 I detailed the design of the garbage collector in
@@ -104,27 +106,57 @@ These changes caused a significant slow down in performance,
 
 With garbage collection in place, I turned to important features
   of any Scheme language: quoting and syntax macros.
-Quoting in Minim is handled within the C layer rather than
-  the standard library like Racket.
-The first attempt at syntax macros was extremely hacky,
-  not hygenic, and really broken (although I didn't know
-  it at the time).
+Syntax macros turned out to be quite the headache;
+  my intial implementation continually caused Minim to crash.
+I eventually reimplemented macros from scratch, but I found out that even my
+  most recent attempt is still not compliant with the standard.
+As of today, I have considered that part of the project to be
+  "good enough", but fixing it is still definitely on my to-do list.
 
-I moved on to exporting symbols and importing files
-  which was an interesting experience trying
-  to implement.
-Perhaps I will mention the design for that in a future post.
-I continued to add more features from the standards:
-  characters, additional string procedures,
-  multi-valued expressions, additional list functions,
-  and more.
-All was going smoothly until I began implementing SRFI
-  features like `case-lambda` and records.
-  
+After the syntax macro mess, I moved on and added
+  types like characters, records, and file ports; additional
+  procedures for strings and lists; and more features
+  like multi-valued expressions, continuations, and multi-signature
+  functions with `case-lambda`.
 
+#### Today
 
-Following the Scheme standards made Minim a much more robust and
-  sensical language and taught me that standards are an important
-  part of language design.
+And with that, we have finally reached the present day.
+As you have just read, the development of Minim has been a
+  long and winding path, from basic and hacky beginnings
+  to a much more robust implementation.
+If there's anything I've learned, it's that a small idea can
+  be fully realized with time and effort.
+
+As for those following my footsteps: I'd highly recommend reading
+  standards for an existing language.
+You might not be able to implement everything, but I found that
+  following the Scheme standards made Minim a much more robust and
+  sensical language.
+Standards are an important part of language design no matter how
+  long and dense they might seem.
 
 #### The Future
+
+What's next for Minim?
+As I've mentioned before, syntax macros are not Scheme-compliant,
+  but there are many more features of Minim that have deviated
+  from the standard, usually because of my naive choices.
+A couple examples include the use of `def` instead of `define`
+  and the syntax of function definitions.
+I have been thinking long and hard about resolving these syntax differences.
+
+More recently, I have implemented caching for Minim source code files: syntax
+  macros are applied and the resulting desguared code is emitted for later use.
+Testing shows that this decreases the number of expressions executed on boot significantly.
+On top of caching, I have implemented constant folding since certain expressions
+  can be resolved before runtime.
+In particular, my implementation of `case-lambda` is egregious in its use of
+  constant expressions for resolving arity.
+
+My target goal is to implement a native-code compiler for Minim,
+  but having just begun a compilers course this quarter,
+  I have a feeling this may be a long ways away.
+Until then, I will focus on implementing more of the standard.
+Please check out the source [repository](https://github.com/bksaiki/Minim)
+  for Minim to see my progress and give the language a try!
