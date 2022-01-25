@@ -3,6 +3,28 @@
 (require (only-in xml write-xexpr xexpr->string))
 (require "data.rkt" "common.rkt" "blog.rkt")
 
+(define (format-paper-link k v)
+  (first (insert-links (format "@~a@" k) v)))
+
+(define (generate-paper tab)
+  (define conf (dict-ref tab 'conf))
+  (define title (dict-ref tab 'title))
+  (define author (dict-ref tab 'author))
+  (define award (dict-ref tab 'award #f))
+  (define paper (dict-ref tab 'paper #f))
+  (define talk (dict-ref tab 'talk #f))
+  (list*
+    `(b ,title)
+    `(br ,author)
+    `(i ,conf)
+    (if award
+      `((br (b ,award))
+        ,(if paper (format-paper-link 'paper paper) "")
+        ,(if talk (format-paper-link 'talk talk) ""))
+      `((br
+        ,(if paper (format-paper-link 'paper paper) "")
+        ,(if talk (format-paper-link 'talk talk) ""))))))
+
 (define (generate-main out)
   (fprintf out "<!doctype html>\n")
   (write-xexpr
@@ -32,15 +54,7 @@
        (div ([class "section-body"])
         (table ([id "publication-table"])
           ,@(for/list ([entry *publications*])
-              (let ([conf (dict-ref entry 'conf)]
-                    [title (dict-ref entry 'title)]
-                    [author (dict-ref entry 'author)]
-                    [other (filter-not (compose (curry set-member? '(conf title author)) car) entry)])
-                `(tr (td (b ,title)
-                         (br ,author)
-                         (i ,conf)
-                         (br ,@(for/list ([elem other])
-                                (first (insert-links (format "@~a@" (car elem)) (cdr elem)))))))))))
+            `(tr (td ,@(generate-paper entry))))))
        (h3 "Side Projects")
        (div ([class "section-body"])
         ,@(for/list ([elem *side-projects*])
