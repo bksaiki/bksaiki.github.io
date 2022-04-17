@@ -4,7 +4,7 @@
          (only-in markdown parse-markdown)
          "common.rkt" "data.rkt")
 
-(provide generate-index)
+(provide generate-blog-index)
 
 (define (gather-pages dir)
   (define path (string->path dir))
@@ -108,7 +108,7 @@
   (generate-page fname* meta body)
   meta)
 
-(define (generate-index out)
+(define (generate-blog-index out)
   (define pages (gather-pages *blog-dir*))
   (define out-dir (build-path *out-dir* *blog-dir*))
   (unless (directory-exists? out-dir)

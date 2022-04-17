@@ -7,8 +7,10 @@
 (define *name* "Brett Saiki")
 (define *out-dir* "docs")
 (define *blog-dir* "blog")
+(define *papers-dir* "papers")
 (define *main-page* "index.html")
 (define *blog-index* "blog.html")
+(define *papers-index* "papers.html")
 
 ;; Sections
 (define *self-description*
@@ -31,7 +33,7 @@
                   ,@(insert-links "@Resume@" "resources/resume.pdf")
                   ,@(insert-links "@Github@" "https://github.com/bksaiki")
                   ,@(insert-links "@Blog@"  "blog.html")
-                  ,@(insert-links "@Notes@" "papers"))))
+                  ,@(insert-links "@Papers@" "papers.html"))))
 
 (define *research-projects*
   `(("@Herbie@ - a tool for minimizing error in floating-point expressions."
@@ -90,3 +92,22 @@
       by the FPBench team, complete with 16 speakers, Zoom, and virtual hangouts.
       Please join us next year in June. Check out the @FPBench community@ page for more
       information." "https://fpbench.org")))
+
+;; Papers
+(define *paper-info*
+  '(
+    ;; class notes
+    ("Real Analysis" "real-analysis"
+      "folland/real-analysis.pdf" "real analysis notes from MATH 334/335 at UW")
+    ("Complex Analysis" "complex-analysis"
+      "gamelin/complex-analysis.pdf" "complex analysis notes from MATH 336 at UW")
+    ("Numerical Analysis" "numerical-analysis"
+      "numerical-analysis/numerical-analysis.pdf" "numerical analysis notes from MATH 464 at UW")
+    ("Probability" "probability"
+      "probability/probability.pdf" "probability notes from MATH/STAT 394 at UW")
+    ;; papers
+    ("Computer-Automated Rewriting" "computer-rewriting"
+      "rewriting_blog/rewriting.pdf" "paper on computer-aided rewriting (written for ENGR 231)")
+    ("Computer Number Systems" "computer-numbers"
+      "computer_numbers_systems/paper.pdf" "paper on computer number systems (written for MATH 336)")
+  ))

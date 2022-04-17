@@ -1,7 +1,7 @@
 #lang racket
 
 (require (only-in xml write-xexpr xexpr->string))
-(require "data.rkt" "common.rkt" "blog.rkt")
+(require "data.rkt" "common.rkt" "blog.rkt" "papers.rkt")
 
 (define (format-paper-link k v)
   (first (insert-links (format "@~a@" k) v)))
@@ -81,6 +81,10 @@
   (printf "Rendering blog ...\n")
   (call-with-output-file (build-path *out-dir* *blog-index*)
     #:exists 'replace
-    (λ (out) (generate-index out)))
+    (λ (out) (generate-blog-index out)))
+  (printf "Rendering papers ...\n")
+  (call-with-output-file (build-path *out-dir* *papers-index*)
+    #:exists 'replace
+    (λ (out) (generate-papers-index out)))
   (printf "Done\n")
   (exit 0))
