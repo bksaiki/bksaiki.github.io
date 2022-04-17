@@ -1,2 +1,6 @@
+# Racket binary
 *.zo
 *.dep
+
+# papers repository
+/papers

@@ -30,7 +30,8 @@
   `(("More links" ,@(insert-links "@LinkedIn@" "https://linkedin.com/in/brettsaiki")
                   ,@(insert-links "@Resume@" "resources/resume.pdf")
                   ,@(insert-links "@Github@" "https://github.com/bksaiki")
-                  ,@(insert-links "@Blog@"  "blog.html"))))
+                  ,@(insert-links "@Blog@"  "blog.html")
+                  ,@(insert-links "@Notes@" "papers"))))
 
 (define *research-projects*
   `(("@Herbie@ - a tool for minimizing error in floating-point expressions."
