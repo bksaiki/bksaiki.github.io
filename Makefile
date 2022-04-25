@@ -7,7 +7,7 @@ all: deps notes
 
 notes:
 	mkdir -p docs/papers
-	git -C papers pull || git clone https://github.com/bksaiki/papers
+	git -C papers pull || git clone git@github.com:bksaiki/papers.git
 
 deps:
 	raco pkg install --skip-installed markdown
