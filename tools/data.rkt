@@ -110,4 +110,6 @@
       "rewriting_blog/rewriting.pdf" "paper on computer-aided rewriting (written for ENGR 231)")
     ("Computer Number Systems" "computer-numbers"
       "computer_numbers_systems/paper.pdf" "paper on computer number systems (written for MATH 336)")
+    ("Construction of Numbers" "construction-of-numbers"
+      "construction_of_numbers/construction_of_numbers.pdf" "constructing numbers from first principles")
   ))
