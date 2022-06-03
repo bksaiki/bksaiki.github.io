@@ -67,7 +67,7 @@
        (div ([class "section-body"])
         ,@(for/list ([elem *news-entries*])
            `(div ([class "news-entry"])
-             (h5 ,(car elem))
+             (h6 ,(car elem))
              (p ,@(apply insert-links (cdr elem))))))
       )))
     out))
