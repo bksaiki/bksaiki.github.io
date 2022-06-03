@@ -21,6 +21,7 @@
      (head
       (meta ([charset "utf-8"]))
        (title ,*name*)
+       (link ([rel "icon"] [type "image/png"] [href "resources/favicon.ico"]))
        (link ([rel "stylesheet"] [type "text/css"] [href "main.css"])))
      (body
       (div ([id "main-section"])
