@@ -38,11 +38,11 @@
 (define *research-projects*
   `(("@Herbie@ - a tool for minimizing error in floating-point expressions."
      "https://github.com/herbie-fp/herbie")
-    ("@Ruler@ - a framework for synthesizing rewrite rules for a particular domain."
-     "https://github.com/uwplse/ruler")
     ("@FPBench@ - a collection of benchmarks, compilers, and standards for
         the floating-point research community."
-      "https://github.com/FPBench/FPBench")))
+      "https://github.com/FPBench/FPBench")
+    ("@Ruler@ - a framework for synthesizing rewrite rules for a particular domain."
+     "https://github.com/uwplse/ruler")))
 
 (define *publications*
   '(((conf . "Object-Oriented Programming, Systems, Languages & Applications (OOPSLA) 2021")
@@ -66,7 +66,7 @@
      "https://docs.racket-lang.org/generic-flonum/index.html")))
 
 (define *resource-links*
-  `(("@FPBench community@ - FPBench, FPCore, number systems and more.
+  `(("@FPBench community@ - FPBench, FPCore, number systems, and more.
      Please start here if you want to know more about the FPBench Project."
      "https://fpbench.org")
     ("@Herbie web demo@ - an interactive page that runs programs through Herbie.
@@ -74,7 +74,13 @@
      "https://herbie.uwplse.org/demo")))
 
 (define *news-entries*
-  `(("July 14, 2021" "I gave a talk at @FPTalks 2021@,
+  `(("June 12, 2022" "@Herbie 1.6@ is now live! Please check out the newest release of Herbie.
+     It features my work replacing Herbie's \"recursive rewrite\" algorithm with one
+     using the @egg@ library as well as many other exciting features like shorter
+     branch conditions and an improved web interface."
+     "https://herbie.uwplse.org/doc/latest/release-notes.html"
+     "https://docs.rs/egg/latest/egg/index.html")
+    ("July 14, 2021" "I gave a talk at @FPTalks 2021@,
      the second annual research conference hosted by the FPBench team,
      complete with 20 virtual talks.
      Please join us next year (hopefully in person!).

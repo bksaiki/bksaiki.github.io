@@ -12,7 +12,7 @@
 }
 
 .blog-body p {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .blog-body p code {
@@ -27,7 +27,7 @@
 }
 
 .blog-table {
-    font-size: 20px;
+    font-size: 18px;
     width: 100%;
     max-width: 100%;
     text-align: left;
