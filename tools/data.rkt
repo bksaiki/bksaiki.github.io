@@ -16,7 +16,7 @@
 (define *self-description*
   (list
     "My name is Brett Saiki.
-    I am a third-year undergraduate student at the University of Washington
+    I am a fourth-year undergraduate student at the University of Washington
       double-majoring in computer engineering and mathematics.
     I am engaged in research on computer number systems and term-rewriting techniques
       alongside my advisers @Zach Tatlock@ and @Pavel Panchekha@.
