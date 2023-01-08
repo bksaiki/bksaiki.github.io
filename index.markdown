@@ -6,11 +6,9 @@ layout: page
 title: Home
 ---
 
-# About
+![My Picture](assets/bsaiki.jpg){: style="display:block; margin-left:auto; margin-right:auto; height: 300px"}
 
-<div style="float: right; padding-left: 15%; padding-right: 15%">
-  <img src="assets/bsaiki.jpg" height="250" style="border: 1px solid black">
-</div>
+# About
 
 My name is Brett Saiki.
 I am a fourth-year undergraduate student at the University of Washington
@@ -37,14 +35,14 @@ I currently work on projects like Herbie, Ruler, and FPBench.
 
 # Publications
 
-_Rewrite Rule Inference Using Equality Saturation_  
+**Rewrite Rule Inference Using Equality Saturation**  
 Chandrakana Nandi, Max Willsey, Amy Zhu, Brett Saiki, Yisu Wang,
 Adam Anderson, Adriana Schulz, Dan Grossman, Zachary Tatlock  
 Object-Oriented Programming, Systems, Languages & Applications (OOPSLA) 2021  
 _Distinguished Paper Award_  
 [Paper](https://arxiv.org/pdf/2108.10436.pdf)
 
-_Combining Precision Tuning and Rewriting_  
+**Combining Precision Tuning and Rewriting**  
 Brett Saiki, Oliver Flatt, Chandrakana Nandi, Pavel Panchekha, Zachary Tatlock  
 IEEE Symposium on Computer Arithmetic (ARITH) 2021  
 [Paper](https://herbie.uwplse.org/arith21-paper.pdf) -
