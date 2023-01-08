@@ -1,6 +1,5 @@
-# Racket binary
-*.zo
-*.dep
-
-# papers repository
-/papers
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor
