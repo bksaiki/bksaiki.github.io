@@ -4,15 +4,14 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+<div style="float: right; padding-left: 15%; padding-right: 15%">
+  <img src="../assets/bsaiki.jpg" height="225" style="border: 1px solid black">
+</div>
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
-
-
-[jekyll-organization]: https://github.com/jekyll
+My name is Brett Saiki.
+I am a fourth-year undergraduate student at the University of Washington
+  double-majoring in computer engineering and mathematics.
+I am do research on computer number systems and term-rewriting techniques
+  alongside my advisers [Zach Tatlock](https://homes.cs.washington.edu/~ztatlock/)
+  and [Pavel Panchekha](https://pavpanchekha.com/).
+I currently work on projects like Herbie, Ruler, and FPBench.
