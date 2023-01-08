@@ -9,7 +9,7 @@ title: Home
 # About
 
 <div style="float: right; padding-left: 15%; padding-right: 15%">
-  <img src="assets/bsaiki.jpg" height="225" style="border: 1px solid black">
+  <img src="assets/bsaiki.jpg" height="250" style="border: 1px solid black">
 </div>
 
 My name is Brett Saiki.
@@ -19,6 +19,10 @@ I am do research on computer number systems and term-rewriting techniques
   alongside my advisers [Zach Tatlock](https://homes.cs.washington.edu/~ztatlock/)
   and [Pavel Panchekha](https://pavpanchekha.com/).
 I currently work on projects like Herbie, Ruler, and FPBench.
+
+[Resume](assets/resume.pdf) -
+[LinkedIn](https://linkedin.com/brettsaiki) -
+[GitHub](https://github.com/bksaiki)
 
 # Research
 
@@ -43,7 +47,7 @@ _Distinguished Paper Award_
 _Combining Precision Tuning and Rewriting_  
 Brett Saiki, Oliver Flatt, Chandrakana Nandi, Pavel Panchekha, Zachary Tatlock  
 IEEE Symposium on Computer Arithmetic (ARITH) 2021  
-[Paper](https://herbie.uwplse.org/arith21-paper.pdf)
+[Paper](https://herbie.uwplse.org/arith21-paper.pdf) -
 [Talk](https://youtu.be/ytWhp0I8KVw)
 
 # Side Projects
