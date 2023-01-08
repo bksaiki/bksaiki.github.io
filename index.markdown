@@ -19,7 +19,7 @@ I am do research on computer number systems and term-rewriting techniques
 I currently work on projects like Herbie, Ruler, and FPBench.
 
 [Resume](assets/resume.pdf) -
-[LinkedIn](https://linkedin.com/brettsaiki) -
+[LinkedIn](https://linkedin.com/in/brettsaiki) -
 [GitHub](https://github.com/bksaiki)
 
 # Research
