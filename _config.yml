@@ -19,15 +19,15 @@
 # in the templates via {{ site.myvariable }}.
 
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://bksaiki.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-domain: bksaiki.github.io
+url: "https://bsaiki.com" # the base hostname & protocol for your site, e.g. http://example.com
+domain: bksaiki.com
 
 title: Brett Saiki
 description: Personal Website
 
 email: bksaiki@gmail.com
 github_username: bksaiki
-linkedin_username: brett.saiki
+linkedin_username: brettsaiki
 
 # Build settings
 theme: minima
@@ -42,14 +42,15 @@ plugins:
 # Excluded items can be processed by explicitly listing the directories or
 # their entries' file path in the `include:` list.
 #
-# exclude:
-#   - .sass-cache/
-#   - .jekyll-cache/
-#   - gemfiles/
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules/
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - old/
