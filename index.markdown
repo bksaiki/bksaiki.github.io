@@ -6,7 +6,7 @@ layout: page
 title: Home
 ---
 
-# About Me
+# About
 
 <div style="float: right; padding-left: 15%; padding-right: 15%">
   <img src="assets/bsaiki.jpg" height="225" style="border: 1px solid black">
@@ -33,16 +33,16 @@ I currently work on projects like Herbie, Ruler, and FPBench.
 
 # Publications
 
-**Rewrite Rule Inference Using Equality Saturation**  
+_Rewrite Rule Inference Using Equality Saturation_  
 Chandrakana Nandi, Max Willsey, Amy Zhu, Brett Saiki, Yisu Wang,
 Adam Anderson, Adriana Schulz, Dan Grossman, Zachary Tatlock  
-_Object-Oriented Programming, Systems, Languages & Applications (OOPSLA) 2021_  
-**Distinguished Paper Award**  
+Object-Oriented Programming, Systems, Languages & Applications (OOPSLA) 2021  
+_Distinguished Paper Award_  
 [Paper](https://arxiv.org/pdf/2108.10436.pdf)
 
-**Combining Precision Tuning and Rewriting**  
+_Combining Precision Tuning and Rewriting_  
 Brett Saiki, Oliver Flatt, Chandrakana Nandi, Pavel Panchekha, Zachary Tatlock  
-_IEEE Symposium on Computer Arithmetic (ARITH) 2021_  
+IEEE Symposium on Computer Arithmetic (ARITH) 2021  
 [Paper](https://herbie.uwplse.org/arith21-paper.pdf)
 [Talk](https://youtu.be/ytWhp0I8KVw)
 
