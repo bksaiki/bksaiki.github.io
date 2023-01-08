@@ -3,7 +3,7 @@
 # To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
 layout: page
-title: Home
+title: null
 ---
 
 ![My Picture](assets/bsaiki.jpg){: style="display:block; margin-left:auto; margin-right:auto; height: 300px"}
