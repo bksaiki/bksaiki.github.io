@@ -11,11 +11,11 @@ title: null
 # About
 
 My name is Brett Saiki.
-I am a fourth-year undergraduate student at the University of Washington
-  double-majoring in computer engineering and mathematics.
-I am do research on computer number systems and term-rewriting techniques
-  alongside my advisers [Zach Tatlock](https://homes.cs.washington.edu/~ztatlock/)
-  and [Pavel Panchekha](https://pavpanchekha.com/).
+I am a graduate student at the University of Washington.
+I do research in programming languages, computer number systems,
+  and term rewriting alongside my advisors
+  [Zach Tatlock](https://homes.cs.washington.edu/~ztatlock/) and
+  [Pavel Panchekha](https://pavpanchekha.com/).
 I currently work on projects like Herbie, Ruler, and FPBench.
 
 [Resume](assets/resume.pdf) -
@@ -35,6 +35,17 @@ I currently work on projects like Herbie, Ruler, and FPBench.
 
 # Publications
 
+**Equality Saturation Theory Exploration à la Carte**  
+Anjali Pal, Brett Saiki, Ryan Tjoa, Cynthia Richey, Amy Zhu, Oliver Flatt,
+Max Willsey, Zachary Tatlock, Chandrakana Nandi  
+Object-Oriented Programming, Systems, Languages and Applications (OOPSLA) 2023  
+[Paper](https://ajpal.github.io/assets/files/enumo.pdf)
+
+**Odyssey: An Interactive Workbench for Expert-Driven Floating-Point Expression Rewriting**  
+Edward Misback, Caleb C. Chan, Brett Saiki, Eunice Jun, Zachary Tatlock, Pavel Panchekha  
+ACM Symposium on User Interface Software and Technology (UIST) 2023  
+[Paper](https://arxiv.org/pdf/2305.10599.pdf)
+
 **Rewrite Rule Inference Using Equality Saturation**  
 Chandrakana Nandi, Max Willsey, Amy Zhu, Brett Saiki, Yisu Wang,
 Adam Anderson, Adriana Schulz, Dan Grossman, Zachary Tatlock  
@@ -52,8 +63,7 @@ IEEE Symposium on Computer Arithmetic (ARITH) 2021
 
  - [Minim](https://github.com/bksaiki/Minim) - a Scheme-like language inspired by recent work in Racket.
 
- - [ENL](https://github.com/bksaiki/ENL) - a library of alternate number systems written in C.
-    Currently supports quad-double."
+ - [mpmfnum](https://github.com/bksaiki/mpmfnum-rust) - number systems library in Rust.
 
  - [generic-flonum](https://docs.racket-lang.org/generic-flonum/index.html) -
     Racket interface for MPFR that supports subnormal numbers and variable exponent sizes.
