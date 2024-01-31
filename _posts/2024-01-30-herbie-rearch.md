@@ -96,7 +96,7 @@ Expanding on the numerical compiler diagram,
   we would implement 
 
 ```
-SpecIR ~~~~~~ rewrite ~~~~~~> SpecIR ~~~~~~ lowering ~~~~~~> ImplIR
+SpecIR ~~~~~~ rewrite ~~~~~~> SpecIR ~~~~~~ lowering ~~~~~~> ProgIR
 ```
 There are two important phases:
  - _rewrite_: either equivalent rewrites or
@@ -114,13 +114,13 @@ Therefore,
 
 1. Expression selection
 2. Local error analysis
-3. Lifting from ImplIR to SpecIR
+3. Lifting from ProgIR to SpecIR
 4. Rewriting
     <ol type="a">
     <li>Taylor polynomial approximation ("taylor")</li>
     <li>equivalent (real-number semantics) rewrites ("rr")</li>
     </ol>
-5. Lowering from SpecIR to ImplIR
+5. Lowering from SpecIR to ProgIR
     <ol type="a">
 	<li>operator selection, e.g. reciprocal vs. division</li>
 	<li>precision tuning</li>
@@ -136,15 +136,15 @@ Additionally,
   it is unclear if separating (4) and (5) will prevent us from
   finding certain rewrites.
 
-The new design requires that egg be used for both SpecIR and ImplIR
+The new design requires that egg be used for both SpecIR and ProgIR
   which suggests splitting the rules into those over SpecIR and
-  those over ImplIR.
+  those over ProgIR.
 The majority of rewriting will be done over the reals,
   but a small set of rewrites may be used in (5) for operator selection,
   e.g. posit-quire operations.
 Constant folding should only be done over SpecIR
   since these programs are over the reals.
-If rewriting ImplIR is done in a egraph,
+If rewriting ProgIR is done in a egraph,
   it will be minimal (no constant folding) and will just be
   for extraction via Herbie’s cost model.
 
