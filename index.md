@@ -39,7 +39,7 @@ I currently work on projects like Herbie, Ruler, and FPBench.
 Anjali Pal, Brett Saiki, Ryan Tjoa, Cynthia Richey, Amy Zhu, Oliver Flatt,
 Max Willsey, Zachary Tatlock, Chandrakana Nandi  
 Object-Oriented Programming, Systems, Languages and Applications (OOPSLA) 2023  
-[Paper](https://ajpal.github.io/assets/files/enumo.pdf)
+[Paper](https://ajpal.github.io/assets/files/enumo-paper.pdf)
 
 **Odyssey: An Interactive Workbench for Expert-Driven Floating-Point Expression Rewriting**  
 Edward Misback, Caleb C. Chan, Brett Saiki, Eunice Jun, Zachary Tatlock, Pavel Panchekha  
