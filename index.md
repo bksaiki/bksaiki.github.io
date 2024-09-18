@@ -11,12 +11,12 @@ title: null
 # About
 
 My name is Brett Saiki.
-I am a graduate student at the University of Washington.
+I am an industrial PhD student at the University of Washington
+  advised by [Zachary Tatlock](https://homes.cs.washington.edu/~ztatlock/) and
+  the [Numerical Hardware Group](https://www.intel.com/content/www/us/en/developer/topic-technology/open/graphics-numerical-hardware/overview.html)
+  at Intel.
 I do research in programming languages, computer number systems,
-  and term rewriting alongside my advisors
-  [Zach Tatlock](https://homes.cs.washington.edu/~ztatlock/) and
-  [Pavel Panchekha](https://pavpanchekha.com/).
-I currently work on projects like Herbie, Ruler, and FPBench.
+  term rewriting for hardware design.
 
 [Resume](assets/resume.pdf) -
 [LinkedIn](https://linkedin.com/in/brettsaiki) -
