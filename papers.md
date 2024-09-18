@@ -6,7 +6,7 @@ permalink: /papers/
 
 An archive of short papers, class notes, and more.
 
- - [Abstract Algebra](papers/hungerford/algebra.pdf) -
+ - [Abstract Algebra](papers/hungerford-abstract-algebra/algebra.pdf) -
     abstract algebra notes from MATH 402/403 at UW
 
  - [Complex Analysis](papers/gamelin/complex-analysis.pdf) -
@@ -27,5 +27,5 @@ An archive of short papers, class notes, and more.
  - [Probability](papers/probability/probability.pdf) -
     probability notes from MATH/STAT 394 at UW
 
- - [Real Analysis](papers/folland/real-analysis.pdf) -
+ - [Real Analysis](papers/folland-real-analysis/real-analysis.pdf) -
     real analysis notes from MATH 334/335 at UW

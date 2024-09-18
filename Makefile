@@ -5,9 +5,9 @@
 
 PAPERS = papers/computer_numbers_systems \
 		 papers/construction_of_numbers \
-		 papers/folland \
+		 papers/folland-real-analysis \
 		 papers/gamelin \
-		 papers/hungerford \
+		 papers/hungerford-abstract-algebra \
 		 papers/numerical-analysis \
 		 papers/probability \
 		 papers/rewriting_blog
