@@ -35,6 +35,11 @@ I do research in programming languages, computer number systems,
 
 # Publications
 
+**Target-Aware Implementation of Real Expressions** (Conditional)  
+Brett Saiki, Jackson Brough, Jonas Regehr, Jesús Ponce, Varun Pradeep,
+Aditya Akhileshwaran, Zachary Tatlock, Pavel Panchekha  
+Architectural Support for Programming Languages and Operating Systems (ASPLOS) 2025
+
 **Equality Saturation Theory Exploration à la Carte**  
 Anjali Pal, Brett Saiki, Ryan Tjoa, Cynthia Richey, Amy Zhu, Oliver Flatt,
 Max Willsey, Zachary Tatlock, Chandrakana Nandi  
@@ -61,7 +66,7 @@ IEEE Symposium on Computer Arithmetic (ARITH) 2021
 
 # Side Projects
 
- - [Minim](https://github.com/bksaiki/Minim) - a Scheme-like language inspired by recent work in Racket.
+ - [Minim](https://github.com/bksaiki/Minim) - a Scheme-like language inspired by work in Racket.
 
  - [mpmfnum](https://github.com/bksaiki/mpmfnum-rust) - number systems library in Rust.
 
