@@ -38,7 +38,8 @@ I do research in programming languages, computer number systems,
 **Target-Aware Implementation of Real Expressions** (Conditional)  
 Brett Saiki, Jackson Brough, Jonas Regehr, Jesús Ponce, Varun Pradeep,
 Aditya Akhileshwaran, Zachary Tatlock, Pavel Panchekha  
-Architectural Support for Programming Languages and Operating Systems (ASPLOS) 2025
+Architectural Support for Programming Languages and Operating Systems (ASPLOS) 2025  
+[Paper](https://arxiv.org/pdf/2410.14025.pdf)
 
 **Equality Saturation Theory Exploration à la Carte**  
 Anjali Pal, Brett Saiki, Ryan Tjoa, Cynthia Richey, Amy Zhu, Oliver Flatt,
