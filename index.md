@@ -13,7 +13,7 @@ title: null
 My name is Brett Saiki.
 I am an industrial PhD student at the University of Washington
   advised by [Zachary Tatlock](https://homes.cs.washington.edu/~ztatlock/) and
-  the [Numerical Hardware Group](https://www.intel.com/content/www/us/en/developer/topic-technology/open/graphics-numerical-hardware/overview.html)
+  the [Numerical and System-Level Design Group](https://www.intel.com/content/www/us/en/developer/topic-technology/open/graphics-numerical-hardware/overview.html)
   at Intel.
 I do research in programming languages, computer number systems,
   term rewriting for hardware design.
@@ -35,11 +35,14 @@ I do research in programming languages, computer number systems,
 
 # Publications
 
-**Target-Aware Implementation of Real Expressions** (Conditional)  
+**Target-Aware Implementation of Real Expressions**  
 Brett Saiki, Jackson Brough, Jonas Regehr, Jesús Ponce, Varun Pradeep,
 Aditya Akhileshwaran, Zachary Tatlock, Pavel Panchekha  
 Architectural Support for Programming Languages and Operating Systems (ASPLOS) 2025  
-[Paper](https://arxiv.org/pdf/2410.14025.pdf)
+[Paper](https://arxiv.org/pdf/2410.14025.pdf) |
+[Slides](https://docs.google.com/presentation/d/1pvysk84nVQlLdLAhwoHSfIgp6QoL6NL6Uk5GvmtjHvg) |
+[Poster](https://docs.google.com/presentation/d/1j2rfyNgRH9_XIUSdaMi50BzP4dmSsihRcIifH_oauUg)
+
 
 **Equality Saturation Theory Exploration à la Carte**  
 Anjali Pal, Brett Saiki, Ryan Tjoa, Cynthia Richey, Amy Zhu, Oliver Flatt,
