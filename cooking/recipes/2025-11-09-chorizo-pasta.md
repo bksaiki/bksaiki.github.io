@@ -6,6 +6,8 @@ last_modified: 2025-11-09
 categories: lunch dinner pasta pork
 ---
 
+![Chorizo Pasta](../../assets/cooking/2025-11-09-chorizo-pasta.jpg)
+
 A simple and tasty pasta dish with chorizo sausage in a tomato-based sauce.
 
 ## Ingredients
@@ -24,34 +26,33 @@ A simple and tasty pasta dish with chorizo sausage in a tomato-based sauce.
 
 ## Preparation
 
-- Slice/crumble the chorizo.
-- Mince the garlic.
-- Slice the onion
+- slice/crumble the chorizo.
+- mince the garlic.
+- slice the onion.
 
 ## Instructions
 
 Start the pasta before the sauce since it takes the longest.
 Once the pasta and sauce are done, they will be combined.
 
-### Pasta
+**Pasta**
 
 1. Start the pasta with salted water.
 Depending on the method, you may want to start this during preparation.
 2. Drain the pasta when done, reserving some pasta water.
 Set aside.
 
-### Chorizo Sauce
+**Chorizo Sauce**
 
 1. Sauté the onion in a pan over medium-low heat until soft and translucent
-2. Increase the heat.
-Add the chorizo, tomato paste, and garlic.
-Keep everythig moving until it's darkened a shade.
+2. Increase the heat, and add the chorizo, tomato paste, and garlic.
+Keep everything moving until it's darkened a shade.
 4. Add bay leaves, tomato sauce, and paprika.
 Bring to boil, then reduce to a simmer.
 
-### Combining Pasta and Sauce
+**Combining Pasta and Sauce**
 
 1. Over low heat, toss both pasta and sauce until combined,
 about 2-4 minutes.
-Use reserved pasta water to emulsify.
+Use reserved pasta water as an emulsifier if needed.
 2. Season with salt and pepper to taste.

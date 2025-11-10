@@ -10,4 +10,6 @@ This page includes recipes and techniques that I have collected over time.
 
 ## Recipes
 
+- [Chorizo Pasta](recipes/2025-11-09-chorizo-pasta.md)
+
 ## Techniques
