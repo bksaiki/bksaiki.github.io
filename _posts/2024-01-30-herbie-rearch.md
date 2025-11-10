@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: posts
 title: "Rearchitecting Herbie's improvement loop"
 date: 2024-01-30
 last_modified: 2024-01-30

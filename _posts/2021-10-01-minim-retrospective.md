@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: posts
 title: "A One-Year Retrospective on Minim"
 date: 2021-10-02
 last_modified: 2021-10-02

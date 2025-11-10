@@ -30,7 +30,7 @@ github_username: bksaiki
 linkedin_username: brettsaiki
 
 # Build settings
-theme: minima
+theme: minimal-mistakes-jekyll
 plugins:
   - jekyll-feed
 

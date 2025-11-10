@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: posts
 title: "Publishing the \"generic-flonum\" package"
 date: 2021-01-21
 last_modified: 2021-03-07
