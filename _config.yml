@@ -53,5 +53,4 @@ exclude:
   - vendor/cache/
   - vendor/gems/
   - vendor/ruby/
-  - racket-src
   - papers-repo
