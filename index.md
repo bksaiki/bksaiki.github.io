@@ -43,7 +43,6 @@ Architectural Support for Programming Languages and Operating Systems (ASPLOS) 2
 [Slides](https://docs.google.com/presentation/d/1pvysk84nVQlLdLAhwoHSfIgp6QoL6NL6Uk5GvmtjHvg) |
 [Poster](https://docs.google.com/presentation/d/1j2rfyNgRH9_XIUSdaMi50BzP4dmSsihRcIifH_oauUg)
 
-
 **Equality Saturation Theory Exploration à la Carte**  
 Anjali Pal, Brett Saiki, Ryan Tjoa, Cynthia Richey, Amy Zhu, Oliver Flatt,
 Max Willsey, Zachary Tatlock, Chandrakana Nandi  
@@ -65,7 +64,7 @@ _Distinguished Paper Award_
 **Combining Precision Tuning and Rewriting**  
 Brett Saiki, Oliver Flatt, Chandrakana Nandi, Pavel Panchekha, Zachary Tatlock  
 IEEE Symposium on Computer Arithmetic (ARITH) 2021  
-[Paper](https://herbie.uwplse.org/arith21-paper.pdf) -
+[Paper](https://herbie.uwplse.org/arith21-paper.pdf) |
 [Talk](https://youtu.be/ytWhp0I8KVw)
 
 # Side Projects

@@ -9,17 +9,7 @@ This paper describes our CSE 503 class project.
 - Date: December 2025
 - Venue: N/A
 
-[PDF](paper.pdf)
-
-```
-@misc{fpydebug,
-  author       = {Saiki, Brett and Tan, Wei Jun},
-  title        = {FPyDebug: Numerical Accuracy Profiling},
-  howpublished = {\url{https://bsaiki.com/papers/class/2025-cse503-fpydebug/paper.pdf}},
-  year         = {2025},
-  note         = {Unpublished manuscript}
-}
-```
+Links: [PDF](paper.pdf)
 
 ## Abstract 
 
@@ -47,3 +37,13 @@ variety of domains. FPyDebug allows users to easily and accurately
 identity numerical errors within their program. Moreover, its real
 number evaluation strategy is more accurate than approximate
 methods, incurring a 2.9× performance overhead.
+
+```
+@misc{fpydebug,
+  author       = {Saiki, Brett and Tan, Wei Jun},
+  title        = {FPyDebug: Numerical Accuracy Profiling},
+  howpublished = {\url{https://bsaiki.com/papers/class/2025-cse503-fpydebug/paper.pdf}},
+  year         = {2025},
+  note         = {Unpublished manuscript}
+}
+```
