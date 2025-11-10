@@ -1,5 +1,5 @@
 ---
-layout: single
+layout: posts
 title: "Chorizo Pasta"
 date: 2025-11-09
 last_modified: 2025-11-09

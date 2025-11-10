@@ -2,7 +2,7 @@
 layout: posts
 title: "Publishing the \"generic-flonum\" package"
 date: 2021-01-21
-last_modified: 2021-03-07
+last_modified_at: 2021-03-07
 categories: blog
 ---
 
