@@ -199,13 +199,145 @@ Building a number library this way achieves the benefits mentioned earlier:
   inherits all mathematical operations available.
 
 - _Correctness:_ Once a mathematical operation is verified
-  in the arithmetic engine, it applies across all rounding modes.
+  in the arithmetic engine, its correctness applies to any
+  composition with the rounding library.
   Similarly, once a rounding context is verified,
-  it works for all operations.
-  This separation allows verification effort to be reused.
+  its correctness applies to any mathematical operation.
+  Thus, testing can be done modularly and the results reused.
 
 ### Application
 
+To illustrate this design,
+  consider a number library providing
+  an implementation of multiplication.
+
+```python
+module Numbers:
+    module Engine:
+        def rto_mul(x, y, p):
+            ...
+
+    module Round:
+        def round(x, p, rm):
+            ...
+
+        def rto_prec(p):
+            ...
+
+    def mul(x, y, p, rm):
+        rto_p = Round.rto_prec(p)
+        result = Engine.rto_mul(x, y, rto_p)
+        return Round.round(result, p, rm)
+```
+
+The `Engine` module implements arithmetic operations
+  that produce round-to-odd results with at least precision `p`.
+The `Round` module handles rounding operations
+  and precision calculations:
+  `round` rounds `x` to precision `p` using the specified rounding mode,
+  while `rto_prec` calculates the precision needed for safe re-rounding.
+The `mul` function provided by the number library
+  composes these functions by
+  performing round-to-odd multiplication,
+  and re-rounding to the desired precision and rounding mode.
+
+To implement `rto_mul`,
+  we can use existing libraries like MPFR
+  that have been extensively tested.
+MPFR provides a narrower interface
+  that perform floating-point arithmetic at
+  a specified precision and rounding mode.
+Although MPFR does not directly support round-to-odd,
+  we can implement it as described by Boldo and Melquiond [1]:
+  we use MPFR's implementation at precision `p - 1` with
+  round towards zero, followed by an additional step to adapt
+  the result to be round-to-odd at precision `p`.
+
+```python
+def rto_mul(x, y, p):
+  r = MPFR.mul(x, y, p - 1, MPFR.RTZ)
+  return rto_fixup(r)
+```
+
+Note by Theorem 1,
+  we can request higher precision than `p` for safe re-rounding.
+
+Since the arithmetic engine and rounding library are separate,
+  the exact implementation of `rto_mul` can be changed
+  without affecting the correctness of any `mul` implementation,
+  as long as it produces correct round-to-odd results.
+For example,
+  if we assume that floating-point numbers in our library
+  has the following structure:
+
+```python
+class Float: # (-1)^sign}* c * 2^exp
+  sign: bool # sign
+  exp: int # exponent
+  c: int # significand (c >= 0)
+```
+
+We can implement `rto_mul` manually as follows:
+
+```python
+def rto_mul(x, y, p):
+  s = x.sign != y.sign
+  exp = x.exp + y.exp
+  c = x.c * y.c
+  return Float(s, exp, c)
+```
+
+Notice that this implementation does not perform any rounding;
+  it simply multiplies the significands and adds the exponents.
+The result is guaranteed to be round-to-odd for any
+  precision greater than the sum of the precisions of `x` and `y`.
+Extending this implementation to handle special values
+  is left as an exercise for the reader.
+
+For the `Round` module,
+  we need to implement `rto_prec` to request enough precision
+  to re-round results from the `Engine` safely.
+The implementation of `rto_prec` is straightforward:
+  it simply adds a constant number of bits
+  required for safe re-rounding to the target precision.
+
+Implementing the `round` function,
+  requires care as it's the core method of the rounding library.
+The exact implementation is too verbose
+  to include here, but I'll outline its basic structure.
+For this example,
+  we'll ignore special values like NaN and infinity.
+
+```python
+def round(x, p, rm):
+  n = x.e - p  # compute where to round off digits
+  hi, lo = x.split(n) # split into significant and leftover digits
+  rbits = lo.round_bits(n) # summarize leftover digits for rounding decision
+  increment = decide_increment(hi, rbits, rm) # round away from zero based on rounding mode?
+  if increment: # adjust hi if needed
+    hi = hi.increment()
+  return hi
+```
+
+The `round` function first determines
+  where to round off digits based on the normalized exponent
+  of the argument and the target precision.
+Any digit above this point is significant
+  while digits below must be rounded off.
+A method `split` divides the number based on this point,
+  and the lower part is summarized into rounding bits,
+  using a round-sticky (RS) or round-guard-sticky (RGS) scheme.
+Since `hi` represents the round towards zero result,
+  we decide whether to round away from zero to the next representable
+  value based on the rounding bits and the specified rounding mode.
+The correctly-rounded result is `hi`.
+
+Importantly,
+  when implementing additional implementation,
+  we must only provide the round to odd implementation,
+  either from existing libraries or directly;
+  the `round` function can be reused as-is
+  assuming the safe re-rounding contract is met.
 
 ## Rounding Contexts
 
