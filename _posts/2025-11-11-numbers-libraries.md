@@ -3,7 +3,10 @@ layout: posts
 title: "Composable, Correctly-Rounded Numbers Libraries"
 date: 2025-11-11
 last_modified_at: 2025-11-11
-categories: floating-point rounding
+categories: blog
+tags:
+ - floating-point
+ - rounding
 ---
 
 Number libraries are essential tools

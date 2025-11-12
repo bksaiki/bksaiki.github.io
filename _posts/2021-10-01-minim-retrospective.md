@@ -4,6 +4,8 @@ title: "A One-Year Retrospective on Minim"
 date: 2021-10-02
 last_modified_at: 2021-10-02
 categories: blog
+tags:
+ - minim
 ---
 
 September 20th marked the one year anniversary of Minim's creation.
