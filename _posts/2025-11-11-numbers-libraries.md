@@ -1,8 +1,8 @@
 ---
 layout: posts
 title: "Composable, Correctly-Rounded Numbers Libraries"
-date: 2025-11-11
-last_modified_at: 2025-11-11
+date: 2025-11-12
+last_modified_at: 2025-11-12
 categories: blog
 tags:
  - floating-point
@@ -23,7 +23,8 @@ Maintainers of these libraries face significant challenges
   as these libraries:
 
 - must support many number formats and operations,
-- often serve as reference implementations for testing correctness,
+- often serve as reference implementations for
+  testing correctness of other systems,
 - must be efficient enough for simulation and verification tasks.
 
 As new number formats and rounding behaviors proliferate,
@@ -446,13 +447,14 @@ class IEEEFloat(Round):
     return 1 - (1 << (es - 1))
 
   def rto_prec(self):
-    return self.mp_ctx().rto_prec() # need at least this much precision
+    p = self.nbits - self.es
+    return MPFloat(p, self.rm).rto_prec() # need at least this much precision
 
   def round(self, x):
     max_p = self.nbits - self.es # maximum allowable precision
     e_diff = x.e - self.emin() # e_diff < 0 if subnormal
     p = min(max_p, max_p + e_diff + 1) # adjust precision for subnormals
-    r = self.MPFloat(p, rm).round(x) # re-use rounding logic
+    r = MPFloat(p, rm).round(x) # re-use rounding logic
     # handle overflow based on rounding mode
     ...
     return r
@@ -538,7 +540,7 @@ I could continue to list implementations of
   to support new number formats, we implement
   a rounding context class that can often reuse
   existing rounding logic.
-Machine integers and fixed-point instances
+Machine integers and fixed-point formats
   can compose `MPFixed` and apply the appropriate
   overflow behavior.
 Floating-point formats like those
@@ -570,23 +572,50 @@ Organizing the rounding library into rounding contexts achieves the following be
 
 ## Evaluation
 
+To demonstrate the benefits of these design principles,
+  I applied these principles to the number library
+  that supports the FPy language [7].
+FPy is an embedded Python DSL for specifying numerical algorithms,
+  with explicit control over rounding via rounding contexts,
+  including first-class rounding context values.
+The number library supports many families of number formats
+  from IEEE 754 floating-point numbers,
+  OCP MX floating-point numbers,
+  fixed-point numbers, and more.
 
 ### Maintainability
 
+Outline:
+- show code size
+- show comparison to softfloat or Universal?
 
 ### Extensibility
 
+To demonstrate extensibility,
+  I implemented support for an additional operator ???,
+  and an additional number format ???.
 
-### Verification
+
+Outline:
+ - additional operator
+ - additional number format
+
+### Correctness
+
+To demonstrate correctness,
+  I'll describe the testing strategy for FPy.
+
+Outline:
+ - show PBT tests for core methods
 
 
 ## Conclusion
 
 Number libraries face an explosion of complexity
-  as new formats, rounding modes, and operations proliferate.
-The two design principles presented here—
+  with new formats, rounding modes, and operations.
+The two design principles presented here ---
   separating arithmetic from rounding via round-to-odd,
-  and organizing rounding logic into composable contexts—
+  and organizing rounding logic into composable contexts ---
   offer a practical solution to this challenge.
 By decoupling these concerns,
   number library developers can achieve
@@ -607,7 +636,7 @@ Jul 2005, Paris, France. pp.11. ffinria-00070603v2f
 2. Bill Zorn. 2021. Rounding. Ph.D. Dissertation. University of Washington, USA.
 [https://hdl.handle.net/1773/48230](https://hdl.handle.net/1773/48230)
 
-3. Bill Zorn. 2025. Titanic [GitHub]. Accessed on November 11, 2025, from
+3. Bill Zorn. 2017. Titanic [GitHub]. Accessed on November 11, 2025, from
 [https://github.com/billzorn/titanic](https://github.com/billzorn/titanic).
 
 4. Jay P. Lim and Santosh Nagarakatte. 2022. One Polynomial Approximation to Produce Correctly Rounded
@@ -625,3 +654,6 @@ Microscaling Data Formats for Deep Learning. arXiv preprint arXiv:2310.10537 (20
 
 6. John L. Gustafson. 2017. Beating Floating Point at its Own Game: Posit Arithmetic. Supercomputing Frontiers and Innovations 4, 2 (2017), 71–86.
 [https://doi.org/10.14529/jsfi170206](https://doi.org/10.14529/jsfi170206)
+
+7. Brett Saiki. 2025. FPy [GitHub]. Accessed on November 12, 2025, from
+[https://github.com/bksaiki/fpy](https://github.com/bksaiki/fpy).
