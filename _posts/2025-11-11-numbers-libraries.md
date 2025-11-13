@@ -573,21 +573,72 @@ Organizing the rounding library into rounding contexts achieves the following be
 ## Evaluation
 
 To demonstrate the benefits of these design principles,
-  I applied these principles to the number library
+  I applied these principles to the numbers library
   that supports the FPy language [7].
 FPy is an embedded Python DSL for specifying numerical algorithms,
   with explicit control over rounding via rounding contexts,
   including first-class rounding context values.
-The number library supports many families of number formats
+The numbers library supports many families of number formats
   from IEEE 754 floating-point numbers,
   OCP MX floating-point numbers,
   fixed-point numbers, and more.
+The core arithmetic engine uses MPFR
+  to implement round-to-odd arithmetic operations.
 
 ### Maintainability
 
-Outline:
-- show code size
-- show comparison to softfloat or Universal?
+Due to its modular design,
+  the FPy numbers library remains compact,
+  composing core components to support a wide variety
+  of number formats and operations.
+
+| Component          | LOC  |
+|--------------------|------|
+| Number             | 1725 |
+| Rounding           | 400  |
+| Arithmetic         | 1500 |
+| Contexts           | 4350 |
+|--------------------|------|
+| Total              | 7975 |
+
+The FPy number library consists
+  of four major components:
+- the `Number` module defining a floating-point type;
+- the `Rounding` module implementing the core rounding logic;
+- the `Arithmetic` module implementing round-to-odd arithmetic using MPFR;
+- the `Contexts` module implementing various rounding contexts.
+
+The total code size is approximately 8,000 lines of code (LOC),
+  which is significantly smaller than monolithic number libraries
+  that implement each operation for each number format separately.
+Rounding contexts in FPy implement more
+  than the essential `round` method;
+  the largest rounding context is almost 850 lines of code,
+  while the smallest is only 60 lines of code.
+
+An exhaustive list of rounding contexts is below:
+
+| Rounding Context | Parameters   | Description                      |
+|------------------|--------------|----------------------------------|
+| `MPFloat`        | p            | p-digit floating-point number    |
+| `MPSFloat`       | p, emin      | `MPFloat` with minimum exponent  |
+| `MPBFloat`       | p, emin, max | `MPSFloat` with maximum value    |
+| `IEEEFloat`      | es, nbits    | IEEE 754 floating-point number   |
+| `EFloat`         | es, nbits, I, O, E | generalized IEEE 754 format [8] |
+| `MPFixed`        | n            | fixed-point number               |
+| `MPBFixed`       | n, max       | fixed-point with maximum value   |
+| `Fixed`          | scale, nbits | `nbits` fixed-point with scale $$2^{scale}$$ |
+| `SMFixed`        | scale, nbits | sign-magnitude `nbits` fixed-point |
+| `ExpFloat`       | nbits        | `nbits` exponential floating-point number |
+
+The `MPFloat` and `MPFixed` rounding contexts
+  call the core rounding logic directly,
+  while other rounding contexts
+  compose existing rounding contexts
+  to implement their rounding behavior.
+Every rounding context may be used
+  with any arithmetic operation
+  provided by the arithmetic engine.
 
 ### Extensibility
 
@@ -602,11 +653,12 @@ Outline:
 
 ### Correctness
 
-To demonstrate correctness,
-  I'll describe the testing strategy for FPy.
-
-Outline:
- - show PBT tests for core methods
+Since the arithmetic engine and rounding library are independent,
+  we can verify their correctness separately.
+Testing of the FPy numbers library
+  relies heavily on property-based testing (PBT)
+  to verify correctness of both components,
+  specifically the Hypothesis library [9].
 
 
 ## Conclusion
@@ -636,8 +688,9 @@ Jul 2005, Paris, France. pp.11. ffinria-00070603v2f
 2. Bill Zorn. 2021. Rounding. Ph.D. Dissertation. University of Washington, USA.
 [https://hdl.handle.net/1773/48230](https://hdl.handle.net/1773/48230)
 
-3. Bill Zorn. 2017. Titanic [GitHub]. Accessed on November 11, 2025, from
+3. Bill Zorn. 2017. Titanic [GitHub].
 [https://github.com/billzorn/titanic](https://github.com/billzorn/titanic).
+Accessed on November 11, 2025
 
 4. Jay P. Lim and Santosh Nagarakatte. 2022. One Polynomial Approximation to Produce Correctly Rounded
 Results of an Elementary Function for Multiple Representations and Rounding Modes. Proc. ACM Program.
@@ -655,5 +708,14 @@ Microscaling Data Formats for Deep Learning. arXiv preprint arXiv:2310.10537 (20
 6. John L. Gustafson. 2017. Beating Floating Point at its Own Game: Posit Arithmetic. Supercomputing Frontiers and Innovations 4, 2 (2017), 71–86.
 [https://doi.org/10.14529/jsfi170206](https://doi.org/10.14529/jsfi170206)
 
-7. Brett Saiki. 2025. FPy [GitHub]. Accessed on November 12, 2025, from
+7. Brett Saiki. 2025. FPy [GitHub].
 [https://github.com/bksaiki/fpy](https://github.com/bksaiki/fpy).
+Accessed on November 12, 2025
+
+8. Brett Saiki. 2025. Taxonomy of Small Floating-Point Formats.
+[https://uwplse.org/2025/02/17/Small-Floats.html](https://uwplse.org/2025/02/17/Small-Floats.html).
+Accessed on November 12, 2025
+
+9. Hypothesis Team. 2025. Hypothesis.
+[https://hypothesis.works/](https://hypothesis.works/).
+Accessed: 2025-11-12.
