@@ -155,8 +155,9 @@ $$
 
 Applying this theorem to our definition of $$f^{*}$$,
   we conclude that a correctly-rounded implementation of $$f$$
-  is the composition of a round-to-odd implementation of $$f$$
-  followed by re-rounding under the desired rounding mode:
+  is the composition of
+  (i) a round-to-odd implementation of $$f$$; followed by
+  (ii) re-rounding under the desired rounding mode:
 
 $$
 f^{*} = \mathrm{rnd}^{p}_{rm} \circ f
@@ -166,7 +167,7 @@ f^{*} = \mathrm{rnd}^{p}_{rm} \circ f
 $$
 
 This result is not novel.
-One successful application of this result is found in the RLibm project [4]
+One successful application is found in the RLibm project [4]
   which automatically generates efficient, correctly-rounded elementary functions
   by generating a polynomial approximation with additional bits
   of precision using round-to-odd arithmetic that will be correctly rounded
@@ -207,7 +208,7 @@ Building a number library this way achieves the benefits mentioned earlier:
 
 ### Application
 
-To illustrate this design,
+To illustrate this approach in practice,
   consider a number library providing
   an implementation of multiplication.
 
@@ -267,11 +268,11 @@ Since the arithmetic engine and rounding library are separate,
   without affecting the correctness of any `mul` implementation,
   as long as it produces correct round-to-odd results.
 For example,
-  if we assume that floating-point numbers in our library
+  assume that floating-point numbers in our library
   has the following structure:
 
 ```python
-class Float: # (-1)^sign}* c * 2^exp
+class Float: # (-1)^sign * c * 2^exp
   sign: bool # sign
   exp: int # exponent
   c: int # significand (c >= 0)
@@ -287,16 +288,20 @@ def rto_mul(x, y, p):
   return Float(s, exp, c)
 ```
 
-Notice that this implementation does not perform any rounding;
-  it simply multiplies the significands and adds the exponents.
+Notice that this implementation does not perform any rounding.
 The result is guaranteed to be round-to-odd for any
   precision greater than the sum of the precisions of `x` and `y`.
 Extending this implementation to handle special values
   is left as an exercise for the reader.
 
 For the `Round` module,
-  we need to implement `rto_prec` to request enough precision
-  to re-round results from the `Engine` safely.
+  we need to implement two functions:
+- `rto_prec(p)` computes the precision required
+  for safe re-rounding to precision `p`; and
+
+- `round(x, p, rm)` rounds `x` to precision `p`
+  using the specified rounding mode `rm`.
+
 The implementation of `rto_prec` is straightforward:
   it simply adds a constant number of bits
   required for safe re-rounding to the target precision.
@@ -327,7 +332,7 @@ Any digit above this point is significant
 A method `split` divides the number based on this point,
   and the lower part is summarized into rounding bits,
   using a round-sticky (RS) or round-guard-sticky (RGS) scheme.
-Since `hi` represents the round towards zero result,
+Since `hi` represents the round-towards-zero result,
   we decide whether to round away from zero to the next representable
   value based on the rounding bits and the specified rounding mode.
 The correctly-rounded result is `hi`.
@@ -341,19 +346,282 @@ Importantly,
 
 ## Rounding Contexts
 
+While separating rounding from arithmetic
+  allows developers to split the number library
+  into two independent components,
+  the rounding library must support a large number
+  of number formats and rounding behaviors.
+To manage this complexity,
+  we can organize the rounding library
+  into _rounding contexts_.
 
-## Benefits
+A rounding context encapsulates all information
+  required to round a number correctly:
+  the number format (precision, exponent range, etc.),
+  the rounding mode,
+  overflow behavior (saturating, wrapping, exceptions, etc.),
+  and special value handling (NaN, infinity, etc.).
+Rather than having a single `round` function
+  that consumes all rounding information as
+  a exhaustive list of parameters,
+  we convert `Round` into an interface;
+  each rounding context will implement the interface.
 
+```python
+interface Round:
+  def rto_prec():
+    ...
+
+  def round(x):
+    ...
+
+  def round_core(x, p, rm):
+     ...
+
+
+def mul(x, y, ctx):
+  rto_p = ctx.rto_prec()
+  result = Engine.rto_mul(x, y, rto_p)
+  return ctx.round(result)
+```
+
+The two interface methods are similar to before:
+- `rto_prec` computes the precision required to safely re-round
+  a number _under_ the instance of the rounding context; and
+- `round` rounds `x` _under_ the instance of the rounding context.
+
+The previous `round` implementation is now `round_core`,
+  which can be reused as the core rounding primitive
+  by each rounding context implementation.
+The `mul` function now accepts
+  a rounding context instance rather than explicit rounding parameters:
+  its implementation must be adapted slightly.
+A sensible strategy is to organize
+  the different implementations of `Round`
+  based on families of _number formats_.
+For example,
+  we can implement `p`-digit floating-point numbers,
+  as a family of rounding contexts.
+
+```python
+class MPFloat(Round):
+  p: int # p >= 1
+  rm: RoundingMode
+
+  def rto_prec(self):
+    return self.p + k  # k is a constant for safe re-rounding
+
+  def round(self, x):
+    return self.round_core(x, self.p, self.rm)
+```
+
+Notice that we completely
+  reuse the `round_core` implementation for the rounding logic.
+
+Critically,
+  we add support for new number formats
+  by simply implementing a new class that
+  implements the `Round` interface.
+For example,
+  consider supporting the IEEE 754 floating-point numbers
+  parameterized by `es`, the size of the exponent field,
+  and `nbits`, the total number of bits of the representation.
+While IEEE 754 numbers have restrictions
+  on exponent ranges, its core rounding behavior
+  is similar to `p`-digit floating-point numbers:
+  we can reuse the `MPFloat` rounding logic.
+The exact implementation is too verbose,
+  but an outline of the implementation is as follows:
+
+```python
+class IEEEFloat(Round):
+  es: int  # exponent size (es >= 2)
+  nbits: int  # total number of bits (nbits >= es + 2)
+  rm: RoundingMode
+
+  def mp_ctx(self): # corresponding MPFloat context
+    return MPFloat(nbits - es, rm)
+
+  def emin(self): # minimum (normalized) exponent
+    return 1 - (1 << (es - 1))
+
+  def rto_prec(self):
+    return self.mp_ctx().rto_prec() # need at least this much precision
+
+  def round(self, x):
+    max_p = self.nbits - self.es # maximum allowable precision
+    e_diff = x.e - self.emin() # e_diff < 0 if subnormal
+    p = min(max_p, max_p + e_diff + 1) # adjust precision for subnormals
+    r = self.MPFloat(p, rm).round(x) # re-use rounding logic
+    # handle overflow based on rounding mode
+    ...
+    return r
+```
+
+The implementation of `round` is more complicated.
+First,
+  we must deal with subnormal numbers,
+  i.e., numbers with magnitude below $$2^{emin}$$
+  which have reduced precision: `max_p + e_diff`,
+  adding 1 to allocate precision for the next
+  power of two.
+We adjust the precision accordingly,
+  construct the appropriate `MPFloat` context,
+  and reuse its `round` method to round
+  without exponent bounds.
+Finally,
+  we handle overflow based on the specified rounding mode:
+  the exact implementation is left as an exercise for the reader.
+
+What about fixed-point formats?
+To support fixed-point numbers,
+  we first alter `round_core` to accept a parameter `n`
+  which sets `n` directly:
+
+```python
+def round_core(x, p, n, rm): # added n parameter
+  ...
+```
+
+The caller must specify either `p` or `n`.
+If both are specified, then the option
+  that will preserve the fewest digits is chosen.
+
+We must also alter the arithmetic engine
+  to request a stopping point `n` rather than
+  precision `p` when performing round-to-odd operations.
+For example,
+  if we want to round with `n=-1`, keeping only
+  integer digits, then the arithmetic engine must produce
+  a round-to-odd result with enough arbitrary precision
+  to preserve all integer digits plus extra digits
+  for safe re-rounding.
+One method of supporting fixed-point style computation
+  is making an initial precision guess,
+  re-computing with the correct precision based
+  on the result only when needed.
+Like before,
+  one of `p` or `n` must be specified.
+
+```python
+module Engine:
+  def rto_mul(x, y, p, n):
+    ...
+
+def mul(x, ctx):
+  p, n = ctx.rto_params()
+  result = Engine.rto_mul(x, y, p, n)
+  return ctx.round(result)
+```
+
+Consider implementing a rounding context
+  for an arbitrary-precision fixed-point number
+  that must round any digit less significant than
+  the `n+1`-th digit:
+
+```python
+class MPFixed(Round):
+  n: int  # first insignificant digit (drop digits <= n)
+  rm: RoundingMode
+
+  def rto_params(self):
+    return None, self.n - k  # k is a constant for safe re-rounding
+
+  def round(self, x):
+    return self.round_core(x, None, self.n, self.rm)
+
+```
+
+I could continue to list implementations of
+  rounding contexts for other number formats,
+  but I believe the pattern is clear:
+  to support new number formats, we implement
+  a rounding context class that can often reuse
+  existing rounding logic.
+Machine integers and fixed-point instances
+  can compose `MPFixed` and apply the appropriate
+  overflow behavior.
+Floating-point formats like those
+  described in the OCP MX standard [5] might
+  benefit from a similar approach to
+  IEEE 754 floating-point numbers.
+Posit numbers [6] are floating-point numbers
+  with _tapered_ precision;
+  one approach might be to use `MPFloat`
+  with variable precision based on the magnitude of the number.
+
+Organizing the rounding library into rounding contexts achieves the following benefits:
+
+- _Maintainability:_ Rounding contexts encapsulate
+  rounding logic and often compose together existing
+  rounding contexts to implement its rounding behavior.
+
+- _Extensibility:_ Implementing a new number format
+  only requires implementing a new rounding context class,
+  often reusing existing rounding logic; any instance
+  of the new rounding context can be used with
+  all existing mathematical operations.
+
+- _Correctness:_ Rounding can be decomposed
+  into many smaller, often reusable components;
+  verifying each component in isolation
+  increases confidence in the correctness
+  of each rounding context implementation.
+
+## Evaluation
+
+
+### Maintainability
+
+
+### Extensibility
+
+
+### Verification
+
+
+## Conclusion
+
+Number libraries face an explosion of complexity
+  as new formats, rounding modes, and operations proliferate.
+The two design principles presented here—
+  separating arithmetic from rounding via round-to-odd,
+  and organizing rounding logic into composable contexts—
+  offer a practical solution to this challenge.
+By decoupling these concerns,
+  number library developers can achieve
+  smaller, more maintainable codebases
+  that are more extensible and easier to verify
+  compared to traditional monolithic designs.
+As the numerical computing landscape continues to evolve,
+  these principles are one such approach to provide a foundation
+  for building maintainable, correct, and extensible
+  number libraries that can adapt to future requirements
+  without overwhelming their maintainers.
 
 ## References
 
 1. Sylvie Boldo, Guillaume Melquiond. When double rounding is odd. 17th IMACS World Congress,
 Jul 2005, Paris, France. pp.11. ffinria-00070603v2f
 
-2. Bill Zorn. 2021. Rounding. Ph.D. Dissertation. University of Washington, USA. https://hdl.handle.net/1773/48230
+2. Bill Zorn. 2021. Rounding. Ph.D. Dissertation. University of Washington, USA.
+[https://hdl.handle.net/1773/48230](https://hdl.handle.net/1773/48230)
 
-3. Bill Zorn. 2025. Titanic [GitHub]. Accessed on November 11, 2025, from https://github.com/billzorn/titanic.
+3. Bill Zorn. 2025. Titanic [GitHub]. Accessed on November 11, 2025, from
+[https://github.com/billzorn/titanic](https://github.com/billzorn/titanic).
 
 4. Jay P. Lim and Santosh Nagarakatte. 2022. One Polynomial Approximation to Produce Correctly Rounded
 Results of an Elementary Function for Multiple Representations and Rounding Modes. Proc. ACM Program.
-Lang. 6, POPL, Article 3 (January 2022), 28 pages. https://doi.org/10.1145/3498664.
+Lang. 6, POPL, Article 3 (January 2022), 28 pages.
+[https://doi.org/10.1145/3498664](https://doi.org/10.1145/3498664).
+
+5. Bita Darvish Rouhani, Ritchie Zhao, Ankit More, Mathew Hall, Alireza Khodamoradi, Summer Deng,
+Dhruv Choudhary, Marius Cornea, Eric Dellinger, Kristof Denolf, Stosic Dusan, Venmugil Elango, Maximilian Golub,
+Alexander Heinecke, Phil James-Roxby, Dharmesh Jani, Gaurav Kolhe, Martin Langhammer, Ada Li, Levi Melnick,
+Maral Mesmakhosroshahi, Andres Rodriguez, Michael Schulte, Rasoul Shafipour, Lei Shao, Michael Siu, Pradeep Dubey,
+Paulius Micikevicius, Maxim Naumov, Colin Verrilli, Ralph Wittig, Doug Burger, and Eric Chung. 2023.
+Microscaling Data Formats for Deep Learning. arXiv preprint arXiv:2310.10537 (2023).
+[https://arxiv.org/abs/2310.10537](https://arxiv.org/abs/2310.10537)
+
+6. John L. Gustafson. 2017. Beating Floating Point at its Own Game: Posit Arithmetic. Supercomputing Frontiers and Innovations 4, 2 (2017), 71–86.
+[https://doi.org/10.14529/jsfi170206](https://doi.org/10.14529/jsfi170206)
