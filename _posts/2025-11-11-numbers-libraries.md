@@ -531,7 +531,6 @@ class MPFixed(Round):
 
   def round(self, x):
     return self.round_core(x, None, self.n, self.rm)
-
 ```
 
 I could continue to list implementations of
@@ -603,14 +602,15 @@ Due to its modular design,
 
 The FPy number library consists
   of four major components:
-- the `Number` module defining a floating-point type;
-- the `Rounding` module implementing the core rounding logic;
-- the `Arithmetic` module implementing round-to-odd arithmetic using MPFR;
-- the `Contexts` module implementing various rounding contexts.
+- the `Number` module defines FPy's number representation;
+- the `Rounding` module implements the core rounding logic;
+- the `Arithmetic` module implements round-to-odd arithmetic using MPFR;
+- the `Contexts` module implements various rounding contexts.
 
-The total code size is approximately 8,000 lines of code (LOC),
-  which is significantly smaller than monolithic number libraries
-  that implement each operation for each number format separately.
+The total code size is approximately 8,000 lines of code (LOC)
+  with 4750 lines dedicated to rounding alone.
+Since FPy's arithmetic engine uses MPFR,
+  the arithmetic engine is relatively small at 1500 LOC.
 Rounding contexts in FPy implement more
   than the essential `round` method;
   the largest rounding context is almost 850 lines of code,
@@ -640,26 +640,302 @@ Every rounding context may be used
   with any arithmetic operation
   provided by the arithmetic engine.
 
+This compositional design
+  ensures the codebase remains relatively small,
+  comprising of modular components
+  rather than monolithic implementations
+  where small changes require large modifications
+  or modifications across many parts of the codebase.
+Core to this design is the two principles
+  of separating rounding from arithmetic via round-to-odd,
+  and organizing rounding logic into composable contexts.
+
 ### Extensibility
 
-To demonstrate extensibility,
-  I implemented support for an additional operator ???,
-  and an additional number format ???.
+To demonstrate extensibility of FPy,
+  I will showcase the implementation of
+  a correctly-rounded implementation of `1/x^2`
+  and the `ExpFloat` number format.
 
+#### Implementing `1/x^2`
 
-Outline:
- - additional operator
- - additional number format
+A correctly-rounded implementation `1/x^2`
+  provides additional accuracy compared
+  to composing `1/x` with `x^2`, separately.
+To implement this operation in FPy,
+  we only need to implement its round-to-odd implementation.
+To illustrate one such implementation,
+  I implemented a digit recurrence algorithm
+  that iterative computes the significant digits of `1/x^2`:
+
+```python
+def rto_recip_sqr(x, p):
+  assert x != 0
+
+  # square the argument
+  x = x * x
+
+  e = -x.e # result normalized exponent
+  exp = e - p + 1 # result unnormalized exponent
+
+  c = x.c # argument significand
+  one = 1 << (x.p - 1) # representation of 1.0 (fixed-point)
+
+  if c == one:
+    # special case: c = 1 => q = 1.0
+    q = 1 << (p - 1)
+  else:
+    # general case: c > 1 => q \in (0.5, 1.0)
+    # step 1. digit recurrence for p - 1 digits
+    # trick: skip first iteration since we always extract 0
+    q = 0 # quotient
+    r = one << 1 # remainder (fold first iter)
+    for _ in range(1, p):
+      q <<= 1
+      if r >= c:
+        q |= 1
+        r -= c
+      r <<= 1
+
+    # step 2. generate last digit by inexactness
+    q <<= 1
+    if r > 0:
+      q |= 1
+
+    # step 3. adjust exponent so that q \in [1.0, 2.0)
+    exp -= 1
+
+  # result
+  return Float(s, exp, q)
+```
+
+The implementation adapts the classic
+  reciprocal digit-recurrence algorithm.
+Assuming that
+
+$$
+x = {(-1)}^s * 1.m * 2^{e} = {(-1)}^s * c * 2^{exp},
+$$
+
+  we know the result is of the form
+  $$q * 2^{-2e}$$ where $$q = 1/(1.m)^2$$.
+The algorithm first computes the square of the argument:
+  adding the exponents and squaring the significand.
+Then,
+  it computes the expected exponent, both $$e$$ and $$exp$$,
+  and checks for the special case where the (fractional)
+  significand is exactly `1.0`, in which case the result
+  is just $$2^{-2e}$$.
+Otherwise,
+  it performs digit-recurrence to compute all
+  but the last significant digit of the result.
+Finally,
+  the last digit is determined by round-to-odd:
+  if we have a non-zero remainder,
+  we need to round up to the result with
+  odd significand.
+
+The implementation is clearly naive,
+  but it verifiably satisfies the round-to-odd contract
+  of the arithmetic engine.
+Composing this implementation
+  with any rounding context in FPy
+  yields a correctly-rounded implementation of `1/x^2`
+  under that number format and rounding mode.
+For example,
+  computing with single-precision floating-point:
+  the computed result is `0.101321185`
+  compared to `0.101321183` when computed
+  separately as `1/x` and `x^2`.
+
+#### Implementing `ExpFloat`
+
+The `ExpFloat` number format
+  encodes exponential numbers, i.e., `2^{e}`
+  where `e` is an integer exponent,
+  that is, positive, power-of-two numbers.
+Unlike standard floating-point numbers,
+  `ExpFloat` numbers cannot be negative,
+  zero, infinity, or NaN.
+In the OCP MX standard [5],
+  the "E8M0" format is an 8-bit exponential number
+  encoding the possible values of the exponent field
+  of a single-precision IEEE 754 floating-point number.
+The `ExpFloat` rounding context
+  is parameterized by `nbits`, the total number of bits
+  in the representation.
+To implement `ExpFloat` in FPy,
+  we compose with the `MPFloat` rounding context implementation:
+
+```python
+class ExpFloat(Round):
+  nbits: int  # total number of bits (nbits >= 2)
+  rm: RoundingMode # rounding mode
+  ... # overflow/underflow behavior
+
+  def mp_ctx(self): # corresponding MPFloat context
+    return MPFloat(1, rm)
+
+  def rto_params(self):
+    return self.mp_ctx().rto_params()
+
+  def round(self, x):
+    # user-defined behavior for negative, zero, Inf, or NaN
+    if x.is_nar() or x <= 0:
+      ...
+
+    r = self.mp_ctx().round(x) # re-use rounding logic
+    # handle overflow/underflow based on rounding mode
+    ...
+    return r
+```
+
+The implementation of `ExpFloat` is highly compact:
+  it reuses the `MPFloat` rounding logic entirely,
+  wrapping it with custom behavior for invalid values,
+  overflow, and underflow behavior.
+In FPy,
+  the actual implementation of the `round` method
+  of the `ExpFloat` context comes out to 50 logical lines
+  of code (110 in total), with most lines dedicated
+  to overflow and underflow handling based on
+  the specified rounding mode;
+  the full context implementation with encoding logic,
+  value constructors, and predicates comes out to 500 lines.
 
 ### Correctness
 
-Since the arithmetic engine and rounding library are independent,
-  we can verify their correctness separately.
-Testing of the FPy numbers library
-  relies heavily on property-based testing (PBT)
-  to verify correctness of both components,
-  specifically the Hypothesis library [9].
+Rather than having to test each
+  operator implementation in its entirety,
+  FPy's design allows testing to be done compositionally.
+Each arithmetic operation in the arithmetic engine
+  can be tested independently of the rounding library;
+  the rounding library can be tested
+  piecewise by verifying each rounding context
+  or core rounding logic in isolation.
+In particular,
+  I use property-based testing
+  with the Hypothesis library [9].
 
+
+Ensuring correctness of the core
+  rounding procedure `round_core` is especially important,
+  as it is the basis for all rounding contexts.
+To test `round_core`,
+  we can verify that it satisfies
+  the expected properties of rounding.
+For example,
+  we expect `round_core` to satisfy two properties:
+- `round_core(x, p, None, rm)` has at most `p` significant digits;
+- `round_core(x, None, n, rm)` has no significant digits below the `n+1`-th digit.
+
+```python
+@given(floats(prec_max=256), st.integers(min_value=0, max_value=1024), rounding_modes())
+def test_round_p(x, p, rm):
+    y = round_core(x, p, None, rm)
+    assert 0 <= y.p <= p
+
+@given(floats(prec_max=256), st.integers(min_value=-1024, max_value=1024), rounding_modes())
+def test_round_n(x, n, rm):
+    y = round_core(x, None, n, rm)
+    _, lo = y.split(n)
+    assert lo == 0
+```
+
+The code above checks the two properties.
+The methods `floats` and `rounding_modes`
+  are generators for FPy floating-point number values
+  and rounding modes, respectively.
+We could test the claim of the `round` method
+  that for `hi, lo = x.split(n)`,
+  the value of `hi` is the round to zero result.
+Assuming that `x` is finite,
+  we can verify this property as follows:
+
+```python
+@given(floats(prec_max=256), st.integers(min_value=-1024, max_value=1024))
+def test_round_rtz(x, n):
+    hi, _ = x.split(n)
+    y = round_core(x, None, n, RoundingMode.RTZ)
+    assert y == hi
+```
+
+While these three properties aren't explicitly
+  checking the _numerical_ correctness of `round_core`,
+  they provide confidence that the implementation
+  behaves as expected.
+Similar property tests can be devised
+  to further test the correctness of `round_core`
+  and combined with concrete test cases
+  or other testing methods to increase confidence
+  in its correctness.
+Clearly,
+  we would also want to verify the `split` helper method:
+  that it does in fact split the number into two non-overlapping
+  groups of digits at the specified point.
+
+```python
+@given(floats(prec_max=256), st.integers(min_value=-1024, max_value=1024))
+def test_split(x, n):
+    hi, lo = x.split(n)
+    # check we did not lose information
+    assert hi + lo == x, "split parts must sum to original"
+    # check we did not gain information
+    assert hi.p <= x.p, "hi must not have more precision than x"
+    assert lo.p <= x.p, "lo must not have more precision than x"
+    # check non-overlapping property
+    assert hi.exp > n, "LSB of hi must be > n"
+    assert lo.e <= n, "MSB of lo must be <= n"
+```
+
+Critically,
+  once `round_core` is verified,
+  the effort of verifying each rounding context
+  mostly involves verifying the _unique_ behavior
+  of that rounding context;
+  confidence in the core rounding logic
+  carries over to each rounding context implementation.
+
+Testing of the arithmetic engine
+  can be done independently of the rounding library.
+FPy relies on MPFR for round-to-odd arithmetic,
+  which has been extensively tested;
+  the RLibm system also uses MPFR for verifying
+  its transcendental function implementations [4].
+Fully verifying custom transcendental function
+  implementations is difficult work,
+  far beyond the scope of property-based testing.
+
+However,
+  we can still verify that each arithmetic operation
+  round-to-odd implementations meet the round-to-odd contract.
+
+```python
+@given(floats(prec_max=256), floats(prec_max=256), st.integers(min_value=2, max_value=1024))
+def test_rto_mul(x, y, p):
+  r_rtz = MPFR.mul(x, y, p - 1, MPFR.RTZ)
+  r_rto = rto_mul(x, y, p)
+  assert r_rtz.p == p - 1, "MPFR result must have p - 1 precision"
+  assert r_rto.c % 2 == (1 if r_rtz.inexact else 0), "inexact iff LSB is odd"
+```
+
+For arithmetic,
+  our custom `rto_mul` implementation
+  can be verified against Python's native `Fraction` implementation
+  for finite inputs.
+
+```python
+@given(floats(prec_max=256), floats(prec_max=256), st.integers(min_value=2, max_value=1024))
+def test_rto_mul(x, y, p):
+  r_ref = x.as_rational() * y.as_rational()
+  r_impl = rto_mul(x, y, p)
+  assert r_ref == r_impl
+```
+
+Verifying both the arithmetic engine
+  and rounding library in a compositional manner
+  increases confidence in the correctness
+  of the overall number library.
 
 ## Conclusion
 
