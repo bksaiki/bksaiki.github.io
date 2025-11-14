@@ -1,8 +1,8 @@
 ---
 layout: posts
-title: "Composable, Correctly-Rounded Numbers Libraries"
-date: 2025-11-12
-last_modified_at: 2025-11-12
+title: "Composable, Correctly-Rounded Number Libraries"
+date: 2025-11-14
+last_modified_at: 2025-11-14
 categories: blog
 tags:
  - floating-point
@@ -10,16 +10,23 @@ tags:
 ---
 
 Number libraries are essential tools
-  for simulating number systems, like floating-point
-  and fixed-point numbers, and operations on them,
-  including rounding modes and special value handling.
-These libraries are used for analyzing
-  multi-precision numerical algorithms,
-  and verifying the correctness of
-  numerical hardware and software.
+  for simulating rounded computation
+  with various number systems ---
+  floating-point, fixed-point, posits, and more ---
+  beyond those offered by standard hardware or
+  language runtimes.
+They are used to analyze
+  numerical error in multi-precision numerical algorithms,
+  explore different implementation trade-offs,
+  and verify the correctness of
+  numerical software and hardware.
+This flexibility over number systems comes at a cost:
+  number libraries are complex,
+  requiring expert knowledge to build and maintain
+  and significant effort to provide useful features
+  and ensure correctness.
 
 Maintainers of these libraries face significant challenges
-  ensuring usable and correct implementations,
   as these libraries:
 
 - must support many number formats and operations,
@@ -47,24 +54,29 @@ Applying this insight to number libraries,
   a core arithmetic engine performing round-to-odd operations,
   and a core rounding library that safely re-rounds under
   the desired number format or rounding mode.
+As a result,
+  each operation provided by the number library
+  is the composition of an operation in the arithmetic engine
+  and the `round` method of a rounding context instance from
+  the core rounding library.
 This trick was pioneered by Bill Zorn [2]
   in his numbers library found in the Titanic repo [3].
 
 Second,
   the core rounding library should be organized
   into _rounding contexts_ which encapsulate number format,
-  rounding mode, and other rounding information,
-  and provide a single `round` method.
+  rounding mode, and other rounding information;
+  providing a single `round` method.
 These rounding contexts are often composable:
   a rounding context for an IEEE 754 floating-point number
   can reuse the same logic as a rounding context for
   a `p`-bit floating-point number,
   with added checks for overflow.
-As a result,
-  each operation provided by the number library
-  is the composition of an operation in the arithmetic engine
-  and the `round` method of a rounding context instance from
-  the core rounding library.
+Thus,
+  the rounding library can be broken down
+  further into composable components that can
+  be assembled to implement rounding for a
+  variety of number formats.
 
 Put together,
   these two design principles enable significant
@@ -73,9 +85,9 @@ Put together,
 First,
   it dramatically improves _maintainability:_
   the library is smaller;
-  the amount of code is proportional to the sum of
-  the number of operations and the number of rounding contexts,
-  rather than their product.
+  it consists of smaller, composable components
+  rather than a monolithic implementation where each
+  combination of operation and rounding mode requires separate code.
 Second,
   it ensures _extensibility:_
   adding features is easier and less error-prone;
@@ -95,7 +107,8 @@ Research on number libraries is rarely published,
   and principles behind their design are rarer still.
 As someone working in this space,
   I hope this blog post provides some insight
-  into the challenges and solutions in this domain.
+  into the challenges in this domain
+  and possible solutions.
 
 ## Separating Rounding from Arithmetic
 
@@ -195,10 +208,10 @@ Building a number library this way achieves the benefits mentioned earlier:
 - _Maintainability:_ The arithmetic engine implements each operation only once,
   while the rounding library implements rounding logic separately.
 
-- _Extensibility:_ Implementing a new mathematical operation
-  inherits the rounding capabilities of the rounding library,
-  and implementing a new number format or rounding mode
-  inherits all mathematical operations available.
+- _Extensibility:_ Any new mathematical operation
+  can be composed with the existing rounding library.
+  Similarly, any new rounding logic can be composed with
+  the existing arithmetic engine.
 
 - _Correctness:_ Once a mathematical operation is verified
   in the arithmetic engine, its correctness applies to any
@@ -293,7 +306,7 @@ Notice that this implementation does not perform any rounding.
 The result is guaranteed to be round-to-odd for any
   precision greater than the sum of the precisions of `x` and `y`.
 Extending this implementation to handle special values
-  is left as an exercise for the reader.
+  just requires careful case analysis.
 
 For the `Round` module,
   we need to implement two functions:
@@ -307,7 +320,7 @@ The implementation of `rto_prec` is straightforward:
   it simply adds a constant number of bits
   required for safe re-rounding to the target precision.
 
-Implementing the `round` function,
+Implementing the `round` function
   requires care as it's the core method of the rounding library.
 The exact implementation is too verbose
   to include here, but I'll outline its basic structure.
@@ -376,7 +389,7 @@ interface Round:
   def round(x):
     ...
 
-  def round_core(x, p, rm):
+  def round_core(x, p, rm): # default method
      ...
 
 
@@ -464,16 +477,15 @@ The implementation of `round` is more complicated.
 First,
   we must deal with subnormal numbers,
   i.e., numbers with magnitude below $$2^{emin}$$
-  which have reduced precision: `max_p + e_diff`,
-  adding 1 to allocate precision for the next
-  power of two.
+  which have reduced precision:
+  the `min(max_p, ...)` expression
+  computes the effective precision.
 We adjust the precision accordingly,
   construct the appropriate `MPFloat` context,
   and reuse its `round` method to round
   without exponent bounds.
 Finally,
-  we handle overflow based on the specified rounding mode:
-  the exact implementation is left as an exercise for the reader.
+  we handle overflow based on the specified rounding mode.
 
 What about fixed-point formats?
 To support fixed-point numbers,
@@ -581,7 +593,7 @@ The numbers library supports many families of number formats
   from IEEE 754 floating-point numbers,
   OCP MX floating-point numbers,
   fixed-point numbers, and more.
-The core arithmetic engine uses MPFR
+The core arithmetic engine uses MPFR [8]
   to implement round-to-odd arithmetic operations.
 
 ### Maintainability
@@ -590,6 +602,13 @@ Due to its modular design,
   the FPy numbers library remains compact,
   composing core components to support a wide variety
   of number formats and operations.
+
+The FPy number library consists
+  of four major components:
+- the `Number` module defines FPy's number representation;
+- the `Rounding` module implements the core rounding logic;
+- the `Arithmetic` module implements round-to-odd arithmetic using MPFR;
+- the `Contexts` module implements various rounding contexts.
 
 | Component          | LOC  |
 |--------------------|------|
@@ -600,20 +619,16 @@ Due to its modular design,
 |--------------------|------|
 | Total              | 7975 |
 
-The FPy number library consists
-  of four major components:
-- the `Number` module defines FPy's number representation;
-- the `Rounding` module implements the core rounding logic;
-- the `Arithmetic` module implements round-to-odd arithmetic using MPFR;
-- the `Contexts` module implements various rounding contexts.
-
 The total code size is approximately 8,000 lines of code (LOC)
   with 4750 lines dedicated to rounding alone.
 Since FPy's arithmetic engine uses MPFR,
-  the arithmetic engine is relatively small at 1500 LOC.
+  the arithmetic engine is relatively small at 1500 lines of code.
 Rounding contexts in FPy implement more
-  than the essential `round` method;
-  the largest rounding context is almost 850 lines of code,
+  than the essential `round` method
+  with additional methods for encoding and decoding bit patterns,
+  constructing special values,
+  and more.
+The largest rounding context is almost 850 lines of code,
   while the smallest is only 60 lines of code.
 
 An exhaustive list of rounding contexts is below:
@@ -624,7 +639,7 @@ An exhaustive list of rounding contexts is below:
 | `MPSFloat`       | p, emin      | `MPFloat` with minimum exponent  |
 | `MPBFloat`       | p, emin, max | `MPSFloat` with maximum value    |
 | `IEEEFloat`      | es, nbits    | IEEE 754 floating-point number   |
-| `EFloat`         | es, nbits, I, O, E | generalized IEEE 754 format [8] |
+| `EFloat`         | es, nbits, I, O, E | generalized IEEE 754 format [9] |
 | `MPFixed`        | n            | fixed-point number               |
 | `MPBFixed`       | n, max       | fixed-point with maximum value   |
 | `Fixed`          | scale, nbits | `nbits` fixed-point with scale $$2^{scale}$$ |
@@ -639,16 +654,12 @@ The `MPFloat` and `MPFixed` rounding contexts
 Every rounding context may be used
   with any arithmetic operation
   provided by the arithmetic engine.
-
 This compositional design
   ensures the codebase remains relatively small,
   comprising of modular components
   rather than monolithic implementations
   where small changes require large modifications
   or modifications across many parts of the codebase.
-Core to this design is the two principles
-  of separating rounding from arithmetic via round-to-odd,
-  and organizing rounding logic into composable contexts.
 
 ### Extensibility
 
@@ -678,23 +689,23 @@ def rto_recip_sqr(x, p):
   e = -x.e # result normalized exponent
   exp = e - p + 1 # result unnormalized exponent
 
-  c = x.c # argument significand
+  m = x.c # argument significand (in 1.M)
   one = 1 << (x.p - 1) # representation of 1.0 (fixed-point)
 
-  if c == one:
-    # special case: c = 1 => q = 1.0
+  if m == one:
+    # special case: m = 1 => q = 1.0
     q = 1 << (p - 1)
   else:
-    # general case: c > 1 => q \in (0.5, 1.0)
-    # step 1. digit recurrence for p - 1 digits
+    # general case: m > 1 => q \in (0.5, 1.0)
+    # step 1. digit recurrence algorithm for 1/m
     # trick: skip first iteration since we always extract 0
     q = 0 # quotient
-    r = one << 1 # remainder (fold first iter)
-    for _ in range(1, p):
+    r = one << 1 # remainder (constant fold first iter)
+    for _ in range(1, p): # compute p - 1 bits
       q <<= 1
-      if r >= c:
+      if r >= m:
         q |= 1
-        r -= c
+        r -= m
       r <<= 1
 
     # step 2. generate last digit by inexactness
@@ -815,7 +826,7 @@ Each arithmetic operation in the arithmetic engine
   or core rounding logic in isolation.
 In particular,
   I use property-based testing
-  with the Hypothesis library [9].
+  with the Hypothesis library [10].
 
 
 Ensuring correctness of the core
@@ -988,10 +999,14 @@ Microscaling Data Formats for Deep Learning. arXiv preprint arXiv:2310.10537 (20
 [https://github.com/bksaiki/fpy](https://github.com/bksaiki/fpy).
 Accessed on November 12, 2025
 
-8. Brett Saiki. 2025. Taxonomy of Small Floating-Point Formats.
+8. MPFR Team. 2025. The GNU MPFR Library.
+[https://www.mpfr.org/](https://www.mpfr.org/).
+Accessed on November 14, 2025.
+
+9. Brett Saiki. 2025. Taxonomy of Small Floating-Point Formats.
 [https://uwplse.org/2025/02/17/Small-Floats.html](https://uwplse.org/2025/02/17/Small-Floats.html).
 Accessed on November 12, 2025
 
-9. Hypothesis Team. 2025. Hypothesis.
+10. Hypothesis Team. 2025. Hypothesis.
 [https://hypothesis.works/](https://hypothesis.works/).
 Accessed: 2025-11-12.
