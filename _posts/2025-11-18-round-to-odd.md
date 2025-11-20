@@ -17,13 +17,12 @@ Changing the rounding mode
   can have significantly change
   the accuracy and numerical stability
   of a numerical computation.
-Due to the nuanced effects rounding modes,
+Due to the nuanced effects of rounding modes,
   they are almost never exposed to programmers
   in general purpose programming languages,
   with rare exceptions:
   C (and C++) provide some support via
-  the `<fenv.h>` (`<cfenv>` in C++) header,
-  through functions like `fesetround` and `fegetround`.
+  the `<fenv.h>` (`<cfenv>` in C++) header.
 
 There are several rounding modes in use today.
 For example,
@@ -98,8 +97,8 @@ Number formats define
   that approximate real numbers.
 A _rounding_ operation
   maps real numbers to representable values
-  of a number format according to rules,
-  called the rounding mode.
+  of a number format according to rules
+  in the form of rounding modes.
 
 <!-- When every value in the number format
   is represented by a fixed exponent,
