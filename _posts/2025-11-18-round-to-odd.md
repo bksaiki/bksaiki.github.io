@@ -17,13 +17,12 @@ Changing the rounding mode
   can have significantly change
   the accuracy and numerical stability
   of a numerical computation.
-Due to the nuanced effects rounding modes,
+Due to the nuanced effects of rounding modes,
   they are almost never exposed to programmers
   in general purpose programming languages,
   with rare exceptions:
   C (and C++) provide some support via
-  the `<fenv.h>` (`<cfenv>` in C++) header,
-  through functions like `fesetround` and `fegetround`.
+  the `<fenv.h>` (`<cfenv>` in C++) header.
 
 There are several rounding modes in use today.
 For example,
@@ -98,8 +97,8 @@ Number formats define
   that approximate real numbers.
 A _rounding_ operation
   maps real numbers to representable values
-  of a number format according to rules,
-  called the rounding mode.
+  of a number format according to rules
+  in the form of rounding modes.
 
 <!-- When every value in the number format
   is represented by a fixed exponent,
@@ -296,18 +295,16 @@ Or,
   rather than an interval,
   we can choose an unknown real value $$c \in I$$;
   we cannot capture the exact value of $$f(x)$$
-  since the sticky bit destructively summarizes
-  the trailing digits.
+  since the sticky bit only indicates
+  whether there are trailing digits.
 
 Sticky bits are widely used
   when implementing floating-point arithmetic
   in both hardware and software due to their
-  ability to summarize trailing digits efficiently.
+  ability to summarize discarded trailing digits.
 In the next section,
-  we'll see how round to odd,
-  despite destroying information about
-  the exact value of $$f(x)$$,
-  preserves a sufficient summary through the sticky bit
+  we'll see how round to odd
+  preserves enough information through the sticky bit
   to safely re-round under any standard rounding mode
   at lower precision.
 
@@ -458,7 +455,7 @@ $$
 
 The regions $$(y_1, y_2)$$ and $$(y_2, y_3)$$
   are the intervals between adjacent
-  representable numbers at precision $$p$$.
+  representable numbers at precision $$p + 1$$.
 Recalling discussion from earlier,
   these regions are exactly the intervals represented
   by the sticky bit at precision $$p + 2$$.
@@ -486,9 +483,8 @@ Most importantly,
 
 ## Applications
 
-Boldo et. al. in the original round to odd paper [2]
-  and a subsequent paper [4] provide potential
-  applications for round-to-odd.
+Boldo and Melquiond [2, 4]
+  provide potential applications for round-to-odd.
 They include
   emulation of FMA,
   correctly-rounded addition of 3 terms,
@@ -539,15 +535,13 @@ One successful application of this corollary
   of precision using round-to-odd arithmetic that will be correctly rounded
   when re-rounded under the desired rounding mode.
 The general principle of Corollary 2
-  is for any mathematical operator,
-  we can separate concerns:
-  a correctly-rounded implementation
-  is the composition of a round-to-odd implementation
-  and a re-rounding step.
-This separation of concerns
-  simplifies the design and implementation
-  of correctly-rounded functions
-  under multiple precisions and rounding modes.
+  suggests a modular approach
+  to designing correctly-rounded functions
+  for multiple precisions and rounding modes:
+  first, design a round-to-odd implementation
+  at higher precision;
+  then, apply a re-rounding step
+  to obtain the desired result.
 
 ## Conclusion
 
