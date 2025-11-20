@@ -54,7 +54,7 @@ Floating-point numbers
   are numbers represented in the form:
 
 $$
-(-1)^s * c * 2^{exp}
+(-1)^s \cdot c \cdot 2^{exp}
 $$
 
 where $$s \in \{0, 1\}$$ is the sign,
@@ -68,7 +68,7 @@ Alternatively,
   in normalized form:
 
 $$
-(-1)^s * m * 2^e
+(-1)^s \cdot m \cdot 2^e
 $$
 
 where $$1 \leq m < 2$$ is the mantissa
@@ -77,7 +77,7 @@ The relationship between the two forms
   is given by the equations:
 
 $$
-c = m * 2^{p - 1}
+c = m \cdot 2^{p - 1}
 $$
 
 and
@@ -353,23 +353,225 @@ $$
 \mathrm{rnd}^{p}_{\text{RTO}}(-x) = -\mathrm{rnd}^{p}_{\text{RTO}}(x).
 $$
 
+Boldo and Melquiond [1] prove a key property
+  of that distinguishes round to odd:
+  round to odd permits _safe re-rounding_.
+Rounding with round to odd first,
+  then re-rounding under any standard rounding mode
+  at lower precision yields the same result as rounding
+  directly under that standard rounding mode
+  at lower precision, specifically,
+  $$k \geq 2$$ digits lower.
 
-Boldo and Melquiond's key observation
-  is that round to odd is _safe for re-rounding_
-  at lower precision.
-To understand this finding,
-  we return to the previous examples.
+<!-- **Theorem 1.**
+Let $$x \in \mathbb{R}$$ be a real number;
+  $$p, k \geq 2$$ be integers;
+ and $$rm$$ be a standard rounding mode.
+Then,
+
+$$
+\mathrm{rnd}^{p}_{rm}(x) = \mathrm{rnd}^{p}_{rm}(\mathrm{rnd}^{p+k}_{RTO}(x)).
+$$ -->
+
+**Theorem 1.**
+Let $$p, k \geq 2$$ be integers;
+ and $$rm$$ be a standard rounding mode.
+Then,
+
+$$
+\mathrm{rnd}^{p}_{rm} = \mathrm{rnd}^{p}_{rm} \circ \mathrm{rnd}^{p+k}_{RTO}.
+$$
 
 
+To understand this statement,
+  we return to previous examples
+  covering the different rounding modes.
+Let $$y_1$$ and $$y_3$$ be two adjacent
+  floating-point values that are representable with precision $$p$$,
+  and let $$y_2$$ be the midpoint between them
+  at precision $$p + 1$$.
+For simplicitly,
+  let's assume that $$y_1$$ is positive,
+  so $$y_2$$ and $$y_3$$ are also positive.
+Consider rounding an arbitrary real number $$x \in [y_1, y_3)$$
+  under RNE, RTZ, RAZ, and RTO.
 
+![rounding $$x$$ between $$y_1$$ and $$y_3$$](/assets/posts/2025-11-18-round-to-odd/round-6.png){:style="display:block; margin-left:auto; margin-right:auto"}
+
+For each rounding mode,
+  we split the interval $$[y_1, y_3)$$
+  into sub-intervals that have the same rounding result.
+Solid arrows represent unconditional roundings,
+  while dashed arrows represent conditional roundings
+  that depend on the value of $$y_1$$ (and $$y_3$$).
+Blue arrows represent roundings to $$y_1$$,
+  while orange arrows represent roundings to $$y_3$$.
+
+Notice that, 
+  for these rounding modes,
+  we can distinguish four cases:
+
+- $$x = y_1$$: $$x$$ is representable,
+  so all rounding modes produce $$y_1$$;
+- $$y_1 < x < y_2$$: $$x$$ is closer to $$y_1$$,
+  so RNE and RTZ produce $$y_1$$,
+  RAZ produces $$y_2$$;
+  and RTO chooses based on parity.
+- $$x = y_2$$: $$x$$ is halfway,
+   so RNE must tie-break based on parity,
+   RTZ produces $$y_1$$,
+   RAZ produces $$y_2$$;
+   and RTO chooses based on parity.
+- $$y_2 < x < y_3$$: $$x$$ is closer to $$y_3$$,
+  so RNE and RAZ produce $$y_2$$,
+  RTZ produces $$y_1$$;
+  and RTO chooses based on parity.
+
+The insight of Theorem 1,
+  comes from analyzing these regions
+  at higher precision, specifically $$p + 1$$.
+At this precision,
+  the significand of $$y_1$$ and $$y_3$$
+  have even parity, since increasing precision
+  adds a trailing zero to their significands.
+For example,
+  if $$y_1 = 5/32$$ with $$p = 3$$, then:
+
+$$
+y_1 = 101 \cdot 2^{-5} = 1010 \cdot 2^{-6}.
+$$
+
+By contrast,
+  the significand of $$y_2$$ has odd parity.
+For the same example,
+  the midpoint $$y_2 = 11/64$$ has the form
+
+$$
+y_2 = 101.1 \cdot 2^{-5} = 1011 \cdot 2^{-6}.
+$$
+
+The regions $$(y_1, y_2)$$ and $$(y_2, y_3)$$
+  are the intervals between adjacent
+  representable numbers at precision $$p$$.
+Recalling discussion from earlier,
+  is exactly the interval represenetd
+  by the sticky bit at precision $$p + 2$$.
+Therefore,
+  at precision $$p + 2$$,
+  the endpoints $$y_1$$ and $$y_3$$
+  have significands ending with $$00$$;
+  the midpoint $$y_2$$ has a significand ending with $$10$$;
+  and any number on $$(y_1, y_2)$$ or $$(y_2, y_3)$$
+  can be summarized with a sticky bit ending with $$R1$$,
+  where $$R = 0$$ when $$x \in (y_1, y_2)$$, and
+  $$R = 1$$ when $$x \in (y_2, y_3)$$.
+By rounding to odd,
+  with precision $$p + 2$$,
+  we produce the additional rounding bit
+  and the final sticky bit.
+Most importantly,
+  this operation preserves sufficient information
+  to re-round under any standard rounding mode
+  at precision $$p$$ to yield the same result.
+
+## Applications
+
+Boldo et. al. in the original round to odd paper [2]
+  and subsequent papers [4] provide potential
+  applications for round-to-odd.
+These use cases include
+  emulation of FMA,
+  correctly-rounded addition of 3 terms,
+  correctly-rounded sum of $$n$$ terms
+  (under certain conditions),
+  compiling the same constant under
+  multiple precisions and rounding modes,
+  and more.
+
+Combining the definition
+  of a correctly-rounded function
+  with Theorem 1,
+  we get the following result:
+
+$$
+\begin{align*}
+f^{*} &= \mathrm{rnd}^{p}_{rm} \circ f\\
+&= (\mathrm{rnd}^{p}_{rm} \circ \mathrm{rnd}^{p+k}_{RTO}) \circ f\\
+&= \mathrm{rnd}^{p}_{rm} \circ (\mathrm{rnd}^{p+k}_{RTO} \circ f)\\
+&= \mathrm{rnd}^{p}_{rm} \circ f_{RTO}^{*}.
+\end{align*}
+$$
+
+Stated otherwise,
+  a correctly-rounded implementation of $$f$$
+  is the composition of
+  (i) a round-to-odd implementation of $$f$$; followed by
+  (ii) re-rounding under the desired rounding mode.
+
+**Corollary 2.**
+Let $$f$$ be a real-valued function,
+  and $$f^{*}$$ be a correctly-rounded implementation
+  of $$f$$ at precision $$p$$ under rounding mode $$rm$$.
+If $$f_{RTO}^{*}$$ is a correctly-rounded implementation
+  of $$f$$ at precision $$p + k$$ under round to odd ($$k \geq 2$$),
+  then
+
+$$
+f^{*} = \mathrm{rnd}^{p}_{rm} \circ f_{RTO}^{*}.
+$$
+
+One successful application of this corollary
+  is found in the RLibm project [5]
+  which automatically generates efficient, correctly-rounded elementary functions
+  by generating a polynomial approximation with additional bits
+  of precision using round-to-odd arithmetic that will be correctly rounded
+  when re-rounded under the desired rounding mode.
+The general principle of Corollary 2
+  is for any mathematical operator,
+  we can separate concerns:
+  a correctly-rounded implementation
+  is the composition of a round-to-odd implementation
+  and a re-rounding step.
+This separation of concerns
+  simplifies the design and implementation
+  of correctly-rounded functions
+  under multiple precisions and rounding modes.
+
+## Conclusion
+
+This blog post introduced the round to odd rounding mode
+  including its definitions, properties, and applications.
+Along the way,
+  we learned about floating-point numbers,
+  correctly-rounded functions,
+  and how rounding works.
+The key property of round to odd,
+  safe re-rounding,
+  enables efficient implementations
+  of correctly-rounded functions
+  by separating the concerns of
+  approximating the infinitely precise result
+  and rounding to the target number format.
+While round to odd is not widely supported
+  in hardware or programming languages today,
+  its unique properties make it a valuable techinique
+  that should be better studied and
+  more widely adopted.
 
 ## References
 
-[1] IEEE. 2019. IEEE Standard for Floating-Point Arithmetic. IEEE Std 754-2019 (Revision of IEEE 754-2008), 1–84. DOI: [https://doi.org/10.1109/IEEESTD.2019.8766229](https://doi.org/10.1109/IEEESTD.2019.8766229).
+1. IEEE. 2019. IEEE Standard for Floating-Point Arithmetic. IEEE Std 754-2019 (Revision of IEEE 754-2008), 1–84. DOI: [https://doi.org/10.1109/IEEESTD.2019.8766229](https://doi.org/10.1109/IEEESTD.2019.8766229).
 
-[2] Sylvie Boldo, Guillaume Melquiond. When double rounding is odd. 17th IMACS World Congress,
+2. Sylvie Boldo, Guillaume Melquiond. When double rounding is odd. 17th IMACS World Congress,
 Jul 2005, Paris, France. pp.11. ffinria-00070603v2f.
 
-[3] Nicolas Brisebarre, Guillaume Hanrot, Jean-Michel Muller, and Paul Zimmermann. 2025. Correctly Rounded
+3. Nicolas Brisebarre, Guillaume Hanrot, Jean-Michel Muller, and Paul Zimmermann. 2025. Correctly Rounded
 Evaluation of a Function: Why, How, and at What Cost?. ACM Comput. Surv. 58, 1, Article 27 (September 2025),
 34 pages. [https://doi.org/10.1145/3747840](https://doi.org/10.1145/3747840).
+
+4. Sylvie Boldo and Guillaume Melquiond. 2008. Emulation of a FMA and Correctly Rounded Sums: Proved Algorithms Using Rounding to Odd. IEEE Transactions on Computers 57, 4 (2008), 462–471. [https://doi.org/10.1109/TC.2007.70819](https://doi.org/10.1109/TC.2007.70819).
+
+5. Jay P. Lim and Santosh Nagarakatte. 2022. One Polynomial Approximation to Produce Correctly Rounded
+Results of an Elementary Function for Multiple Representations and Rounding Modes. Proc. ACM Program.
+Lang. 6, POPL, Article 3 (January 2022), 28 pages.
+[https://doi.org/10.1145/3498664](https://doi.org/10.1145/3498664).
