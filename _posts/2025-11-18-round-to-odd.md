@@ -2,21 +2,71 @@
 layout: posts
 title: "Round to Odd"
 date: 2025-11-19
-last_modified_at: 2025-11-19
+last_modified_at: 2025-11-26
 categories: blog
 tags:
  - floating-point
  - rounding
 ---
 
-When rounding real numbers to floating-point,
+When writing numerical programs,
+  rounding is a subtle but important aspect
+  that can significantly affect the accuracy
+  and stability of computations.
+In particular,
+  rounding twice at different precisions
+  might introduce unexpected errors.
+For example,
+  under the nearly universal
+  round to nearest, ties to even (RNE) rounding mode,
+  adding `1.00000011` and `5.96046447e-8`,
+  and rounding directly to a single-precision floating-point
+  value yields `1.00000012`; but first rounding to a
+  double-precision floating-point value then to
+  a single-precision floating-point value yields `1.00000024`.
+This phenomenon is known as _double rounding_.
+
+The double rounding problem means that
+  a high-precision reference cannot be used to verify
+  the correctness of lower-precision implementations,
+  even for a single operation.
+For example,
+  naively using double-precision arithmetic
+  to verify single-precision results
+  is not enough to ensure correctness:
+  double rounding may cause the reference result,
+  rounded to single-precision,
+  to disagree with the correctly-rounded
+  single-precision result.
+When developing correctly-rounded
+  implementations of floating-point functions,
+  double rounding implies that
+  we cannot simply compute the result
+  at higher precision and then round
+  it to the target precision.
+In the worst case,
+  a correctly-rounded implementation
+  must be specifically designed for each
+  target precision, adding significant time and complexity
+  to the implementation and verification effort.
+
+Across the literature on floating-point arithmetic,
+  one rounding mode offers a solution to double rounding:
+  _round to odd_ (RTO).
+This blog post covers the common rounding modes,
+  and the definition and properties of round to odd.
+Finally,
+  it concludes with the essential property
+  of round to odd: safe re-rounding.
+
+
+<!-- When rounding real numbers to floating-point,
   fixed-point, or integer numbers,
   _rounding modes_ determine how to handle cases
   where the real number cannot be represented exactly.
-Changing the rounding mode
-  can have significantly change
-  the accuracy and numerical stability
-  of a numerical computation.
+Changing the rounding mode can
+  significantly change the accuracy and
+  numerical stability of a numerical computation.
 Due to the nuanced effects of rounding modes,
   they are almost never exposed to programmers
   in general purpose programming languages,
@@ -43,11 +93,11 @@ This blog post intends to explain
   common rounding modes,
   round to odd and its properties,
   and the essential application of
-  round to odd: safe re-rounding.
+  round to odd: safe re-rounding. -->
 
 ## Floating-Point Numbers
 
-As is customary,
+To begin,
   I'll briefly review floating-point numbers.
 Floating-point numbers
   are numbers represented in the form:
@@ -57,11 +107,12 @@ $$
 $$
 
 where $$s \in \{0, 1\}$$ is the sign,
-  $$c \in \mathbb{N}$$ is the significand,
+  $$c \in \mathbb{Z}_{\geq 0}$$ is the significand,
   and $$exp \in \mathbb{Z}$$ is the (unnormalized) exponent.
-The smallest number of digits
-  used to represent $$c$$ is called
-  the _precision_, $$p$$, of the number.
+The fewest number of digits
+  that can represent $$c$$ is called
+  the _precision_, $$p$$, of the number:
+  if $$c > 0$$, then $$2^{p - 1} \leq c < 2^p$$.
 Alternatively,
   we can represent floating-point numbers
   in normalized form:
@@ -85,6 +136,11 @@ $$
 exp = e - (p - 1).
 $$
 
+For example,
+  we can represent $$1.25$$ using 3 bits of precision by
+  $$101 \cdot 2^{-2}$$ and $$1.01 \cdot 2^{0}$$
+  in unnormalized and normalized forms, respectively.
+
 The IEEE 754 standard
   extends floating-point numbers
   to include special values:
@@ -95,10 +151,21 @@ The IEEE 754 standard
 Number formats define
   discrete sets of floating-point numbers
   that approximate real numbers.
+
 A _rounding_ operation
   maps real numbers to representable values
-  of a number format according to rules
-  in the form of rounding modes.
+  of a number format according to rounding modes.
+Rounding modes determine which
+  floating-point value to choose in cases
+  where the real number cannot be represented exactly.
+There are several rounding modes in use today.
+For example,
+  the IEEE 754 standard [1] defines five rounding modes:
+  round to nearest, ties to even (RNE);
+  round to nearest, ties away from zero (RNA);
+  round to positive infinity (RTP);
+  round to negative infinity (RTN); and
+  round toward zero (RTZ).
 
 <!-- When every value in the number format
   is represented by a fixed exponent,
@@ -133,6 +200,29 @@ Requiring correct rounding has strong arguments [3]:
   across different implementations of $$f^{*}$$;
   and it bounds the numerical error
   introduced by rounding.
+
+We can now formalize the double rounding problem.
+In general,
+  for precisions $$p_2 < p_1$$ and
+  rounding modes $$rm_1, rm_2$$:
+
+$$
+\mathrm{rnd}^{p_2}_{rm_2} \circ f \neq
+  \mathrm{rnd}^{p_2}_{rm_2} \circ
+  (\mathrm{rnd}^{p_1}_{rm_1} \circ f).
+$$
+
+More succinctly,
+  rounding operations do not compose:
+
+$$
+\mathrm{rnd}^{p_2}_{rm_2} \neq
+  \mathrm{rnd}^{p_2}_{rm_2} \circ
+  \mathrm{rnd}^{p_1}_{rm_1}.
+$$
+
+We will see that round to odd
+  provides a solution to this problem.
 
 ## Rounding Modes
 
@@ -226,6 +316,19 @@ Under RTO,
 In our example,
   this means that we always round to $$y_2$$.
 
+Round to odd should not be confused with
+  round to nearest, ties to odd (RNO);
+  the rounding mode that uses the opposite tie-breaking rule
+  of round to nearest, ties to even (RNE).
+RTO is _not_ a nearest rounding mode.
+For RNE and RNO, the "even" (and "odd")
+  refers to the tie-breaking rule when $$f(x)$$ is exactly
+  halfway between $$y_1$$ and $$y_2$$.
+For RTO,
+  the "odd" refers to the rule _whenever_ $$f(x)$$
+  is not representable.
+
+
 ![rounding $$f(x)$$ under RTO](/assets/posts/2025-11-18-round-to-odd/round-4.png){:style="display:block; margin-left:auto; margin-right:auto"}
 
 Like RTZ and RAZ,
@@ -260,9 +363,12 @@ Thus,
   is representable in the lower precision $$p - 1$$:
   the significand of $$f^{*}(x)$$ is odd if and only if
   $$f(x)$$ is not representable in precision $$p - 1$$.
+This is a key feature of round-to-odd:
+  parity encodes representability,
+  also called _exactness_.
 In floating-point literature,
-  the lowest significant bit of the significand
-  is often called the _sticky bit_.
+  the lowest digit of the significand is often called
+  the _sticky bit_.
 
 There are a few interpretations of the sticky bit.
 If we expand the (possibly infinite) significand
@@ -302,11 +408,14 @@ Sticky bits are widely used
   when implementing floating-point arithmetic
   in both hardware and software due to their
   ability to summarize discarded trailing digits.
+Encoding whether a result has
+  non-zero trailing digits
+  at some precision is essential for correct rounding.
 In the next section,
-  we'll see how round to odd
-  preserves enough information through the sticky bit
-  to safely re-round under any standard rounding mode
-  at lower precision.
+  we'll see how round to odd preserves enough information
+  through the sticky bit to safely re-round under any
+  standard rounding mode at lower precision,
+  avoiding the double rounding problem.
 
 <!-- This sticky bit is essential
   when implementing correct rounding
@@ -337,7 +446,7 @@ The first four are properties shared
 - round to odd is _monotonic_ : if $$x_1 \leq x_2$$,
   then $$\mathrm{rnd}^{p}_{\text{RTO}}(x_1) \leq \mathrm{rnd}^{p}_{\text{RTO}}(x_2)$$;
 - round to odd is _faithful_ : if $$y_1 < x < y_2$$
-  are the two representable numbers of precision $$p$$ surrounding $$f(x)$$,
+  are the two representable numbers of precision $$p$$ surrounding $$x$$,
   then $$\mathrm{rnd}^{p}_{\text{RTO}}(x)$$ is either $$y_1$$ or $$y_2$$;
 
 The first three properties are fairly straightforward:
@@ -366,16 +475,6 @@ Rounding with round to odd first,
   at lower precision, specifically,
   $$k \geq 2$$ digits lower.
 
-<!-- **Theorem 1.**
-Let $$x \in \mathbb{R}$$ be a real number;
-  $$p, k \geq 2$$ be integers;
- and $$rm$$ be a standard rounding mode.
-Then,
-
-$$
-\mathrm{rnd}^{p}_{rm}(x) = \mathrm{rnd}^{p}_{rm}(\mathrm{rnd}^{p+k}_{RTO}(x)).
-$$ -->
-
 **Theorem 1.**
 Let $$p, k \geq 2$$ be integers;
  and $$rm$$ be a standard rounding mode.
@@ -384,7 +483,6 @@ Then,
 $$
 \mathrm{rnd}^{p}_{rm} = \mathrm{rnd}^{p}_{rm} \circ \mathrm{rnd}^{p+k}_{RTO}.
 $$
-
 
 To understand this statement,
   we return to previous examples
@@ -402,13 +500,14 @@ Consider rounding an arbitrary real number $$x \in [y_1, y_3)$$
 ![rounding $$x$$ between $$y_1$$ and $$y_3$$](/assets/posts/2025-11-18-round-to-odd/round-6.png){:style="display:block; margin-left:auto; margin-right:auto"}
 
 For each rounding mode,
-  we split the interval $$[y_1, y_3)$$
-  into sub-intervals that have the same rounding result.
-Solid arrows represent unconditional roundings,
-  while dashed arrows represent conditional roundings
-  that depend on the value of $$y_1$$ (and $$y_3$$).
-Blue arrows represent roundings to $$y_1$$,
-  while orange arrows represent roundings to $$y_3$$.
+  we color the interval $$[y_1, y_3)$$ with
+  each segment (or tick) colored according
+  to the rounding result:
+  blue for $$y_1$$ and orange for $$y_3$$.
+Dual-coloring indicates a conditional rounding
+  that depends on the value of $$y_1$$ (and $$y_3$$).
+RTO is dual-colored throughout;
+  the midpoint $$y_2$$ is also dual-colored for RNE.
 
 Notice that, 
   for these rounding modes,
@@ -430,10 +529,7 @@ Notice that,
   RTZ produces $$y_1$$;
   and RTO chooses based on parity.
 
-The insight of Theorem 1,
-  comes from analyzing these regions
-  at higher precision, specifically $$p + 1$$.
-At this precision,
+Analyzing these regions at precision $$p + 1$$,
   the significand of $$y_1$$ and $$y_3$$
   are even, since increasing precision
   adds a trailing zero to their significands.
@@ -457,29 +553,69 @@ The regions $$(y_1, y_2)$$ and $$(y_2, y_3)$$
   are the intervals between adjacent
   representable numbers at precision $$p + 1$$.
 Recalling discussion from earlier,
-  these regions are exactly the intervals represented
+  these regions are _exactly_ the intervals represented
   by the sticky bit at precision $$p + 2$$.
 Therefore,
-  at precision $$p + 2$$,
+  rounding to odd at precision $$p + 2$$
+  results in four cases:
 
-- the endpoints $$y_1$$ and $$y_3$$
-  have significands ending with $$00$$;
+- $$x$$ is exactly the endpoint $$y_1$$,
+  so the last two digits of the rounded significand
+  are $$RS = 01$$;
 
-- the midpoint $$y_2$$ has a significand ending with $$10$$;
+- $$x$$ lies in $$(y_1, y_2)$$,
+  so the last two digits of the rounded significand
+  are $$RS = 01$$;
 
-- and any number on $$(y_1, y_2)$$ or $$(y_2, y_3)$$
-  can be summarized with a sticky bit ending with $$R1$$,
-  where $$R = 0$$ when $$x \in (y_1, y_2)$$, and
-  $$R = 1$$ when $$x \in (y_2, y_3)$$.
+- $$x$$ is exactly the midpoint $$y_2$$,
+  so the last two digits of the rounded significand
+  are $$RS = 10$$;
 
-By rounding to odd,
-  with precision $$p + 2$$,
-  we produce the additional rounding bit
-  and the final sticky bit.
-Most importantly,
-  this operation preserves sufficient information
-  to re-round under any standard rounding mode
-  at precision $$p$$ to yield the same result.
+- $$x$$ lies in $$(y_2, y_3)$$,
+  so the last two digits of the rounded significand
+  and $$RS = 11$$.
+
+Notice that these cases correspond
+  exactly to the four cases we identified earlier
+  for standard rounding modes at precision $$p$$.
+After applying round to odd at precision $$p + 2$$,
+  representable values are still representable;
+  midpoints are still midpoints;
+  and values that are nearer to one endpoint
+  are rounded to a value, specifically the midpoint
+  at precision $$p + 1$$, which is nearer to
+  the same endpoint.
+Therefore,
+  re-rounding under any standard rounding mode
+  at precision $$p$$ yields the same result
+  as rounding directly at precision $$p$$.
+
+![rounding $$x$$ between $$y_1$$ and $$y_3$$](/assets/posts/2025-11-18-round-to-odd/round-7.png){:style="display:block; margin-left:auto; margin-right:auto"}
+
+Visually,
+  we can indicate the round to odd step
+  by overlaying gray arrows, representing
+  round to odd at precision $$p + 2$$,
+  over the previous figure.
+Layering the two rounding steps,
+  we see that round to odd at precision $$p + 2$$
+  rounds values in $$(y_1, y_2)$$ or $$(y_2, y_3)$$
+  to the midpoints at precision $$p + 1$$;
+  representable values and midpoints remain unchanged.
+Safe re-rounding corresponds
+  to the coloring of the initial value $$x$$,
+  before and after rounding to odd,
+  being preserved.
+
+Therefore,
+  round to odd at precision $$p + 2$$ preserves
+  sufficient information so that we can safely re-round
+  under any standard rounding mode at precision $$p$$.
+For precision $$p + k$$ where $$k > 2$$,
+  the same reasoning applies:
+  values that are neither representable nor midpoints
+  may be rounded differently at precision $$p + k$$,
+  but their nearness to one endpoint is preserved.
 
 ## Applications
 
@@ -545,7 +681,7 @@ The general principle of Corollary 2
 
 ## Conclusion
 
-This blog post covered the round to odd rounding mode
+This blog post covered the round to odd
   including its definitions, properties, and applications.
 Along the way,
   we learned about floating-point numbers,
@@ -553,8 +689,8 @@ Along the way,
   and how rounding works.
 The key property of round to odd,
   safe re-rounding,
-  enables efficient implementations
-  of correctly-rounded functions
+  avoid double rounding and suggests
+  a method for designing correctly-rounded functions
   by separating the concerns of
   approximating the infinitely precise result
   and rounding to the target number format.
