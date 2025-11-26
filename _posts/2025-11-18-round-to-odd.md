@@ -112,7 +112,7 @@ where $$s \in \{0, 1\}$$ is the sign,
 The fewest number of digits
   that can represent $$c$$ is called
   the _precision_, $$p$$, of the number:
-  mathematically, $$2^{p - 1} \leq c < 2^p$$.
+  if $$c > 0$$, then $$2^{p - 1} \leq c < 2^p$$.
 Alternatively,
   we can represent floating-point numbers
   in normalized form:
@@ -363,6 +363,9 @@ Thus,
   is representable in the lower precision $$p - 1$$:
   the significand of $$f^{*}(x)$$ is odd if and only if
   $$f(x)$$ is not representable in precision $$p - 1$$.
+This is a key feature of round-to-odd:
+  parity encodes representability,
+  also called _exactness_.
 In floating-point literature,
   the lowest digit of the significand is often called
   the _sticky bit_.
@@ -406,7 +409,7 @@ Sticky bits are widely used
   in both hardware and software due to their
   ability to summarize discarded trailing digits.
 Encoding whether a result has
-  non-zero trailing digits, also known as _inexactness_,
+  non-zero trailing digits
   at some precision is essential for correct rounding.
 In the next section,
   we'll see how round to odd preserves enough information
@@ -502,9 +505,9 @@ For each rounding mode,
   to the rounding result:
   blue for $$y_1$$ and orange for $$y_3$$.
 Dual-coloring indicates a conditional rounding
-  that depends on the value of $$y_1$$ (and $$y_3$$);
-  RTO is dual-colored throughout as is the midpoint for RNE
-  since the result depends on the parity of $$y_1$$.
+  that depends on the value of $$y_1$$ (and $$y_3$$).
+RTO is dual-colored throughout;
+  the midpoint $$y_2$$ is also dual-colored for RNE.
 
 Notice that, 
   for these rounding modes,
@@ -526,10 +529,7 @@ Notice that,
   RTZ produces $$y_1$$;
   and RTO chooses based on parity.
 
-The insight of Theorem 1,
-  comes from analyzing these regions
-  at higher precision, specifically $$p + 1$$.
-At this precision,
+Analyzing these regions at precision $$p + 1$$,
   the significand of $$y_1$$ and $$y_3$$
   are even, since increasing precision
   adds a trailing zero to their significands.
@@ -557,23 +557,26 @@ Recalling discussion from earlier,
   by the sticky bit at precision $$p + 2$$.
 Therefore,
   rounding to odd at precision $$p + 2$$
-  falls into three (or four distinct) cases:
+  results in four cases:
 
-- $$x$$ is the endpoint $$y_1$$,
-  and the last two digits of the rounded significand
+- $$x$$ is exactly the endpoint $$y_1$$,
+  so the last two digits of the rounded significand
   are $$RS = 01$$;
 
-- $$x$$ is the midpoint $$y_2$$,
-  and the last two digits of the rounded significand
+- $$x$$ lies in $$(y_1, y_2)$$,
+  so the last two digits of the rounded significand
+  are $$RS = 01$$;
+
+- $$x$$ is exactly the midpoint $$y_2$$,
+  so the last two digits of the rounded significand
   are $$RS = 10$$;
 
-- $$x$$ lies in $$(y_1, y_2)$$ or $$(y_2, y_3)$$,
-  and the last two digits of the rounded significand
-  are $$RS = 01$$ when $$x \in (y_1, y_2)$$,
-  and $$RS = 11$$ when $$x \in (y_2, y_3)$$.
+- $$x$$ lies in $$(y_2, y_3)$$,
+  so the last two digits of the rounded significand
+  and $$RS = 11$$.
 
 Notice that these cases correspond
-  exactly to the cases we identified earlier
+  exactly to the four cases we identified earlier
   for standard rounding modes at precision $$p$$.
 After applying round to odd at precision $$p + 2$$,
   representable values are still representable;
@@ -582,10 +585,15 @@ After applying round to odd at precision $$p + 2$$,
   are rounded to a value, specifically the midpoint
   at precision $$p + 1$$, which is nearer to
   the same endpoint.
+Therefore,
+  re-rounding under any standard rounding mode
+  at precision $$p$$ yields the same result
+  as rounding directly at precision $$p$$.
 
 ![rounding $$x$$ between $$y_1$$ and $$y_3$$](/assets/posts/2025-11-18-round-to-odd/round-7.png){:style="display:block; margin-left:auto; margin-right:auto"}
 
-We can indicate the round to odd step
+Visually,
+  we can indicate the round to odd step
   by overlaying gray arrows, representing
   round to odd at precision $$p + 2$$,
   over the previous figure.
@@ -595,7 +603,9 @@ Layering the two rounding steps,
   to the midpoints at precision $$p + 1$$;
   representable values and midpoints remain unchanged.
 Safe re-rounding corresponds
-  to the coloring at precision being preserved.
+  to the coloring of the initial value $$x$$,
+  before and after rounding to odd,
+  being preserved.
 
 Therefore,
   round to odd at precision $$p + 2$$ preserves
@@ -671,7 +681,7 @@ The general principle of Corollary 2
 
 ## Conclusion
 
-This blog post covered the round to odd rounding mode
+This blog post covered the round to odd
   including its definitions, properties, and applications.
 Along the way,
   we learned about floating-point numbers,
@@ -679,8 +689,8 @@ Along the way,
   and how rounding works.
 The key property of round to odd,
   safe re-rounding,
-  enables efficient implementations
-  of correctly-rounded functions
+  avoid double rounding and suggests
+  a method for designing correctly-rounded functions
   by separating the concerns of
   approximating the infinitely precise result
   and rounding to the target number format.
