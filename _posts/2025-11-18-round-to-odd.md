@@ -9,14 +9,62 @@ tags:
  - rounding
 ---
 
-When rounding real numbers to floating-point,
+When writing numerical programs,
+  rounding is a subtle but important aspect
+  that can significantly affect the accuracy
+  and stability of computations.
+In particular,
+  rounding twice at different precisions
+  might introduce unexpected errors.
+For example,
+  under the nearly universal
+  round to nearest, ties to even (RNE) rounding mode,
+  adding `1.00000011` and `5.96046447e-8`,
+  and rounding directly to a single-precision floating-point
+  value yields `1.00000012`; but first rounding to a
+  double-precision floating-point value then to
+  a single-precision floating-point value yields `1.00000024`.
+This phenomenon is known as _double rounding_.
+
+The double rounding problem means that
+  a high-precision reference
+  cannot be naively used to verify
+  the correctness of lower-precision implementations,
+  even for a single operation:
+  double rounding can cause the lower-precision reference
+  to disagree with the correctly-rounded result.
+For example,
+  using double-precision arithmetic
+  to verify single-precision results
+  is not enough to ensure correctness.
+When developing correctly-rounded
+  implementations of floating-point functions,
+  the double rounding implies that
+  we cannot simply compute the result
+  at higher precision and then round
+  it to the target precision.
+In the worst case,
+  a correctly-rounded implementation
+  must be specifically designed for each
+  target precision, hindering code reuse.
+
+Across the literature on floating-point arithmetic,
+  one rounding mode offers a solution to double rounding:
+  _round to odd_ (RTO).
+This blog post covers the common rounding modes,
+  and the definition and properties of round to odd.
+Finally,
+  it concludes with the essential property
+  of round to odd: safe re-rounding.
+
+
+<!-- When rounding real numbers to floating-point,
   fixed-point, or integer numbers,
   _rounding modes_ determine how to handle cases
   where the real number cannot be represented exactly.
-Changing the rounding mode
-  can have significantly change
-  the accuracy and numerical stability
-  of a numerical computation.
+Changing the rounding mode can
+  significantly change the accuracy and
+  numerical stability of a numerical computation.
 Due to the nuanced effects of rounding modes,
   they are almost never exposed to programmers
   in general purpose programming languages,
@@ -43,7 +91,7 @@ This blog post intends to explain
   common rounding modes,
   round to odd and its properties,
   and the essential application of
-  round to odd: safe re-rounding.
+  round to odd: safe re-rounding. -->
 
 ## Floating-Point Numbers
 
@@ -95,10 +143,21 @@ The IEEE 754 standard
 Number formats define
   discrete sets of floating-point numbers
   that approximate real numbers.
+
 A _rounding_ operation
   maps real numbers to representable values
-  of a number format according to rules
-  in the form of rounding modes.
+  of a number format according to rounding modes.
+Rounding modes determine which
+  floating-point value to choose in cases
+  where the real number cannot be represented exactly.
+There are several rounding modes in use today.
+For example,
+  the IEEE 754 standard [1] defines five rounding modes:
+  round to nearest, ties to even (RNE),
+  round to nearest, ties away from zero (RNA),
+  round to positive infinity (RTP),
+  round to negative infinity (RTN), and
+  round toward zero (RTZ).
 
 <!-- When every value in the number format
   is represented by a fixed exponent,
@@ -133,6 +192,29 @@ Requiring correct rounding has strong arguments [3]:
   across different implementations of $$f^{*}$$;
   and it bounds the numerical error
   introduced by rounding.
+
+We can now formalize the double rounding problem.
+In general,
+  for precisions $$p_2 < p_1$$ and
+  rounding modes $$rm_1, rm_2$$:
+
+$$
+\mathrm{rnd}^{p_2}_{rm_2} \circ f \neq
+  \mathrm{rnd}^{p_2}_{rm_2} \circ
+  (\mathrm{rnd}^{p_1}_{rm_1} \circ f).
+$$
+
+More succinctly,
+  rounding operations do not compose:
+
+$$
+\mathrm{rnd}^{p_2}_{rm_2} \neq
+  \mathrm{rnd}^{p_2}_{rm_2} \circ
+  \mathrm{rnd}^{p_1}_{rm_1}.
+$$
+
+We will see that round to odd
+  provides a solution to this problem.
 
 ## Rounding Modes
 
