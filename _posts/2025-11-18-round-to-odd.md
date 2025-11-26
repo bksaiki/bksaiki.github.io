@@ -362,8 +362,8 @@ Thus,
   the significand of $$f^{*}(x)$$ is odd if and only if
   $$f(x)$$ is not representable in precision $$p - 1$$.
 In floating-point literature,
-  the lowest significant bit of the significand
-  is often called the _sticky bit_.
+  the lowest digit of the significand is often called
+  the _sticky bit_.
 
 There are a few interpretations of the sticky bit.
 If we expand the (possibly infinite) significand
@@ -495,13 +495,14 @@ Consider rounding an arbitrary real number $$x \in [y_1, y_3)$$
 ![rounding $$x$$ between $$y_1$$ and $$y_3$$](/assets/posts/2025-11-18-round-to-odd/round-6.png){:style="display:block; margin-left:auto; margin-right:auto"}
 
 For each rounding mode,
-  we split the interval $$[y_1, y_3)$$
-  into sub-intervals that have the same rounding result.
-Solid arrows represent unconditional roundings,
-  while dashed arrows represent conditional roundings
-  that depend on the value of $$y_1$$ (and $$y_3$$).
-Blue arrows represent roundings to $$y_1$$,
-  while orange arrows represent roundings to $$y_3$$.
+  we color the interval $$[y_1, y_3)$$ with
+  each segment (or tick) colored according
+  to the rounding result:
+  blue for $$y_1$$ and orange for $$y_3$$.
+Dual-coloring indicates a conditional rounding
+  that depends on the value of $$y_1$$ (and $$y_3$$);
+  RTO is dual-colored throughout as is the midpoint for RNE
+  since the result depends on the parity of $$y_1$$.
 
 Notice that, 
   for these rounding modes,
@@ -550,7 +551,7 @@ The regions $$(y_1, y_2)$$ and $$(y_2, y_3)$$
   are the intervals between adjacent
   representable numbers at precision $$p + 1$$.
 Recalling discussion from earlier,
-  these regions are exactly the intervals represented
+  these regions are _exactly_ the intervals represented
   by the sticky bit at precision $$p + 2$$.
 Therefore,
   rounding to odd at precision $$p + 2$$
@@ -566,19 +567,34 @@ Therefore,
 
 - $$x$$ lies in $$(y_1, y_2)$$ or $$(y_2, y_3)$$,
   and the last two digits of the rounded significand
-  are $$RS = R1$$, where $$R = 0$$ when $$x \in (y_1, y_2)$$,
-  and $$R = 1$$ when $$x \in (y_2, y_3)$$.
+  are $$RS = 01$$ when $$x \in (y_1, y_2)$$,
+  and $$RS = 11$$ when $$x \in (y_2, y_3)$$.
 
 Notice that these cases correspond
   exactly to the cases we identified earlier
   for standard rounding modes at precision $$p$$.
 After applying round to odd at precision $$p + 2$$,
-  represenable values are still representable;
+  representable values are still representable;
   midpoints are still midpoints;
   and values that are nearer to one endpoint
   are rounded to a value, specifically the midpoint
-  at precision $$p + 1$$, which is still nearer to
+  at precision $$p + 1$$, which is nearer to
   the same endpoint.
+
+![rounding $$x$$ between $$y_1$$ and $$y_3$$](/assets/posts/2025-11-18-round-to-odd/round-7.png){:style="display:block; margin-left:auto; margin-right:auto"}
+
+We can indicate the round to odd step
+  by overlaying gray arrows, representing
+  round to odd at precision $$p + 2$$,
+  over the previous figure.
+Layering the two rounding steps,
+  we see that round to odd at precision $$p + 2$$
+  rounds values in $$(y_1, y_2)$$ or $$(y_2, y_3)$$
+  to the midpoints at precision $$p + 1$$;
+  representable values and midpoints remain unchanged.
+Safe re-rounding corresponds
+  to the coloring at precision being preserved.
+
 Therefore,
   round to odd at precision $$p + 2$$ preserves
   sufficient information so that we can safely re-round
