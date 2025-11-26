@@ -2,7 +2,7 @@
 layout: posts
 title: "Round to Odd"
 date: 2025-11-19
-last_modified_at: 2025-11-19
+last_modified_at: 2025-11-26
 categories: blog
 tags:
  - floating-point
@@ -27,26 +27,28 @@ For example,
 This phenomenon is known as _double rounding_.
 
 The double rounding problem means that
-  a high-precision reference
-  cannot be naively used to verify
+  a high-precision reference cannot be used to verify
   the correctness of lower-precision implementations,
-  even for a single operation:
-  double rounding can cause the lower-precision reference
-  to disagree with the correctly-rounded result.
+  even for a single operation.
 For example,
-  using double-precision arithmetic
+  naively using double-precision arithmetic
   to verify single-precision results
-  is not enough to ensure correctness.
+  is not enough to ensure correctness:
+  double rounding may cause the reference result,
+  rounded to single-precision,
+  to disagree with the correctly-rounded
+  single-precision result.
 When developing correctly-rounded
   implementations of floating-point functions,
-  the double rounding implies that
+  double rounding implies that
   we cannot simply compute the result
   at higher precision and then round
   it to the target precision.
 In the worst case,
   a correctly-rounded implementation
   must be specifically designed for each
-  target precision, hindering code reuse.
+  target precision, adding significant time and complexity
+  to the implementation and verification effort.
 
 Across the literature on floating-point arithmetic,
   one rounding mode offers a solution to double rounding:
