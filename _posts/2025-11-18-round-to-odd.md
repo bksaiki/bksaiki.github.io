@@ -233,8 +233,8 @@ Once we compute
   $$f^{*}(x) = \mathrm{rnd}^{p}_{rm}(f(x))$$.
 To illustrate the different rounding modes,
   we'll consider three rounding modes:
-  round to nearest, ties to even (RNE),
-  round toward zero (RTZ), and
+  round to nearest, ties to even (RNE);
+  round toward zero (RTZ); and
   round away from zero (RAZ).
 
 If $$f(x)$$ is representable in the target number format,
@@ -288,8 +288,8 @@ Under RTZ and RAZ,
   RTZ rounds to $$y_1$$ and RAZ rounds to $$y_2$$.
 
 Other rounding modes like
-  round to nearest, ties away from zero (RNA),
-  round to positive infinity (RTP),
+  round to nearest, ties away from zero (RNA);
+  round to positive infinity (RTP);
   and round to negative infinity (RTN)
   can be analyzed similarly.
 RNA is similar to RNE,
@@ -356,7 +356,8 @@ Rounding with the original precision $$p$$,
 
 Notice that under precision $$p$$,
   $$y_1$$ and $$y_3$$ have even significands,
-  while $$y_2$$ has an odd significand.
+  while $$y_2$$, not representable at precision $$p - 1$$,
+  has an odd significand.
 Thus,
   the parity of the significand encodes
   whether the infinitely precise result $$f(x)$$
@@ -518,16 +519,16 @@ Notice that,
 - $$y_1 < x < y_2$$: $$x$$ is closer to $$y_1$$,
   so RNE and RTZ produce $$y_1$$,
   RAZ produces $$y_2$$;
-  and RTO chooses based on parity.
+  and RTO chooses based on parity of $$y_1$$;
 - $$x = y_2$$: $$x$$ is halfway,
    so RNE must tie-break based on parity,
    RTZ produces $$y_1$$,
    RAZ produces $$y_2$$;
-   and RTO chooses based on parity.
+   and RTO chooses based on parity of $$y_1$$.
 - $$y_2 < x < y_3$$: $$x$$ is closer to $$y_3$$,
   so RNE and RAZ produce $$y_2$$,
   RTZ produces $$y_1$$;
-  and RTO chooses based on parity.
+  and RTO chooses based on parity of $$y_1$$.
 
 Analyzing these regions at precision $$p + 1$$,
   the significand of $$y_1$$ and $$y_3$$
@@ -543,7 +544,8 @@ $$
 By contrast,
   the significand of $$y_2$$ is odd.
 For the same example,
-  the midpoint $$y_2 = 11/64$$ has the form
+  the midpoint $$y_2 = 11/64$$
+  of $$y_1$$ and $$y_3$$ has the form
 
 $$
 y_2 = 101.1 \cdot 2^{-5} = 1011 \cdot 2^{-6}.
@@ -579,12 +581,11 @@ Notice that these cases correspond
   exactly to the four cases we identified earlier
   for standard rounding modes at precision $$p$$.
 After applying round to odd at precision $$p + 2$$,
-  representable values are still representable;
-  midpoints are still midpoints;
-  and values that are nearer to one endpoint
-  are rounded to a value, specifically the midpoint
-  at precision $$p + 1$$, which is nearer to
-  the same endpoint.
+  representable values (at precision $$p$$) are still representable;
+  midpoints (at precision $$p$$) are still midpoints;
+  and all other values, either on $$(y_1, y_2)$$ or $$(y_2, y_3)$$,
+  are rounded to the midpoint of those intervals,
+  preserving their nearness to one endpoint.
 Therefore,
   re-rounding under any standard rounding mode
   at precision $$p$$ yields the same result
@@ -603,9 +604,8 @@ Layering the two rounding steps,
   to the midpoints at precision $$p + 1$$;
   representable values and midpoints remain unchanged.
 Safe re-rounding corresponds
-  to the coloring of the initial value $$x$$,
-  before and after rounding to odd,
-  being preserved.
+  to the coloring of the initial value $$x$$
+  being preserved after rounding to odd.
 
 Therefore,
   round to odd at precision $$p + 2$$ preserves
