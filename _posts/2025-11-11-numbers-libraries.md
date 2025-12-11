@@ -9,42 +9,67 @@ tags:
  - rounding
 ---
 
-Number libraries are essential tools
-  for simulating rounded computation
-  with various number systems ---
+_This blog post was split into two parts._
+_This [blog post](./2025-11-18-round-to-odd.md) on rounding_
+  _covers rounding in detail and discusses some theory;_
+  _this blog post focuses on design principles for number libraries._
+
+Number libraries simulate number systems ---
   floating-point, fixed-point, posits, and more ---
   beyond those offered by standard hardware or
   language runtimes.
-They are used to analyze
-  numerical error in multi-precision numerical algorithms,
-  explore different implementation trade-offs,
-  and verify the correctness of
+Well known examples of these libraries
+  include [MPFR](https://www.mpfr.org/)
+  for arbitrary-precision floating-point numbers,
+  [GMP](https://gmplib.org/)
+  for arbitrary-precision integers and rationals,
+  [SoftFloat](http://www.jhauser.us/arithmetic/SoftFloat.html)
+  for emulating IEEE 754 floating-point numbers in software,
+  and [Universal](https://github.com/stillwater-sc/universal)
+  for supporting formats across the machine learning landscape.
+They are essential tools for
+  analyzing numerical error in multi-precision numerical algorithms,
+  exploring different implementation trade-offs,
+  and verifying the correctness of
   numerical software and hardware.
+
 This flexibility over number systems comes at a cost:
   number libraries are complex,
-  requiring expert knowledge to build and maintain
+  requiring expert knowledge to build and maintain,
   and significant effort to provide useful features
   and ensure correctness.
+Maintainers of these libraries face
+  significant challenges as their tools
+  serve as trusted reference implementations
+  but must also be efficient for simulation and verification tasks.
+Due to intense demand from machine learning,
+  there has been a proliferation of new number formats
+  and rounding behaviors.
+Each new combination of operation,
+  number format, rounding mode,
+  overflow behavior, and special value handling
+  requires careful implementation and testing,
+  multiplying the complexity and maintenance burden.
+Developers must choose:
+  stick with a smaller set of features
+  or invest significant effort to meet user demand.
 
-Maintainers of these libraries face significant challenges
-  as these libraries:
 
-- must support many number formats and operations,
-- often serve as reference implementations for
-  testing correctness of other systems,
-- must be efficient enough for simulation and verification tasks.
-
-As new number formats and rounding behaviors proliferate,
+<!-- As new number formats and rounding behaviors proliferate,
   developers are faced with an explosion of different
   combinations of operations, formats, rounding modes,
   overflow behavior, special value handling, and more.
+
+
 Each new feature requires careful implementation and testing,
   multiplying the complexity, verification effort,
-  and maintenance burden.
+  and maintenance burden. -->
 
-Reflecting on the number libraries I have built and maintained,
-  I want to highlight two key principles that have helped mitigate
-  these challenges.
+I maintain number libraries that fall into the latter category:
+  they aim to support a wide variety of number formats
+  and rounding behaviors.
+I want to reflect on two design principles
+  that have helped mitigate some of these challenges.
 
 First, 
   the _round-to-odd_ rounding mode [1] allows decoupling
@@ -82,35 +107,40 @@ Put together,
   these two design principles enable significant
   modularity and code reuse within number libraries,
   resulting in several benefits.
-First,
-  it dramatically improves _maintainability:_
+They dramatically improve _maintainability:_
   the library is smaller;
   it consists of smaller, composable components
   rather than a monolithic implementation where each
   combination of operation and rounding mode requires separate code.
-Second,
-  it ensures _extensibility:_
+They ensure _extensibility:_
   adding features is easier and less error-prone;
   adding a new operation requires implementing it only once
   in the arithmetic engine,
   while adding a new format or rounding mode
   requires implementing it only once in the rounding library.
-Third,
-  it improves _correctness:_
+They improve _correctness:_
   testing can be done compositionally;
   components can be extensively tested in isolation,
-  and their composition is thus more likely to be correct.
+  and their composition inherits the correctness guarantees.
 
 I will explore these two design principles in greater detail
   and illustrate their benefits through examples.
-Research on number libraries is rarely published,
-  and principles behind their design are rarer still.
+<!-- Research on number libraries is rarely published,
+  and principles behind their design are rarer still. -->
 As someone working in this space,
   I hope this blog post provides some insight
   into the challenges in this domain
   and possible solutions.
 
 ## Separating Rounding from Arithmetic
+
+The first design principle
+  is to separate rounding from arithmetic operations
+  using round-to-odd arithmetic [1].
+My blog post on [round to odd](./2025-11-18-round-to-odd.md)
+  covers the theory and implementation of round-to-odd arithmetic in detail;
+  here, I'll summarize the key ideas
+  and illustrate how they apply to number libraries.
 
 ### Theory
 
