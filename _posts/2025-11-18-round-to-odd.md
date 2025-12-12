@@ -482,7 +482,7 @@ Let $$p, k \geq 2$$ be integers;
 Then,
 
 $$
-\mathrm{rnd}^{p}_{rm} = \mathrm{rnd}^{p}_{rm} \circ \mathrm{rnd}^{p+k}_{RTO}.
+\mathrm{rnd}^{p}_{rm} = \mathrm{rnd}^{p}_{rm} \circ \mathrm{rnd}^{p+k}_{\text{RTO}}.
 $$
 
 To understand this statement,
@@ -640,9 +640,9 @@ Combining the definition
 $$
 \begin{align*}
 f^{*} &= \mathrm{rnd}^{p}_{rm} \circ f\\
-&= (\mathrm{rnd}^{p}_{rm} \circ \mathrm{rnd}^{p+k}_{RTO}) \circ f\\
-&= \mathrm{rnd}^{p}_{rm} \circ (\mathrm{rnd}^{p+k}_{RTO} \circ f)\\
-&= \mathrm{rnd}^{p}_{rm} \circ f_{RTO}^{*}.
+&= (\mathrm{rnd}^{p}_{rm} \circ \mathrm{rnd}^{p+k}_{\text{RTO}}) \circ f\\
+&= \mathrm{rnd}^{p}_{rm} \circ (\mathrm{rnd}^{p+k}_{\text{RTO}} \circ f)\\
+&= \mathrm{rnd}^{p}_{rm} \circ f_{\text{RTO}}^{*}.
 \end{align*}
 $$
 
@@ -656,12 +656,12 @@ Stated otherwise,
 Let $$f$$ be a real-valued function,
   and $$f^{*}$$ be a correctly-rounded implementation
   of $$f$$ at precision $$p$$ under rounding mode $$rm$$.
-If $$f_{RTO}^{*}$$ is a correctly-rounded implementation
+If $$f_{\text{RTO}}^{*}$$ is a correctly-rounded implementation
   of $$f$$ at precision $$p + k$$ under round to odd ($$k \geq 2$$),
   then
 
 $$
-f^{*} = \mathrm{rnd}^{p}_{rm} \circ f_{RTO}^{*}.
+f^{*} = \mathrm{rnd}^{p}_{rm} \circ f_{\text{RTO}}^{*}.
 $$
 
 One successful application of this corollary

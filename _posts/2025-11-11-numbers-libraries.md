@@ -10,7 +10,7 @@ tags:
 ---
 
 _This blog post was split into two parts._
-_This [blog post](./2025-11-18-round-to-odd.md) on rounding_
+_This [blog post]({% post_url 2025-11-18-round-to-odd %})_
   _covers rounding in detail and discusses some theory;_
   _this blog post focuses on design principles for number libraries._
 
@@ -137,32 +137,24 @@ As someone working in this space,
 The first design principle
   is to separate rounding from arithmetic operations
   using round-to-odd arithmetic [1].
-My blog post on [round to odd](./2025-11-18-round-to-odd.md)
-  covers the theory and implementation of round-to-odd arithmetic in detail;
-  here, I'll summarize the key ideas
+My [blog post]({% post_url 2025-11-18-round-to-odd %})
+  covers this topic in detail.
+I'll summarize the key ideas here
   and illustrate how they apply to number libraries.
 
 ### Theory
 
-To begin,
-  I'll cover why round-to-odd arithmetic
-  enables separating rounding from arithmetic operations.
 For a real number function $$f$$,
   we say that an implementation of $$f$$, say $$f^{*}$$,
-  is _correctly-rounded_ if its result is the infinitely precise
-  result of $$f$$ rounded to the target number format.
+  is _correctly-rounded_ when it produces
+  the infinitely precise result of $$f$$ rounded
+  to the target number format.
 This rounding operation is usually parameterized
-  by a _rounding mode_ that specifies how to round
-  when the result is not exactly representable
-  in the target number format.
-IEEE 754 specifies several rounding modes:
-  round to nearest, ties to even (RNE),
-  round to positive infinity (RTP),
-  round to negative infinity (RTN),
-  round toward zero (RTZ), and
-  round to nearest, ties away from zero (RNA).
-
-For this section,
+  by a _rounding mode_ that specifies which representable value
+  to choose when the result is not exactly representable
+  in the target number format; the IEEE 754 standard
+  specifies several such rounding modes.
+For now,
   we'll only consider floating-point numbers
   with a fixed precision of $$p$$ digits,
   so I'll denote the rounding operation in the style
@@ -176,51 +168,50 @@ $$
 f^{*} = \mathrm{rnd}^{p}_{rm} \circ f.
 $$
 
-Other rounding modes exist beyond those specified by IEEE 754.
-The most notable is round to odd (RTO),
-  which rounds an unrepresentable number to the nearest
-  representable number with an odd least significant digit.
-An important result from Boldo and Melquiond [1]
-  states that round to odd permits _safe re-rounding_:
-  rounding with round to odd first, then re-rounding
-  under any standard rounding mode at lower precision
+Boldo and Melquiond [1] describe
+  a non-standard rounding mode called
+  _round to odd_ and prove that
+  the rounding mode permits _safe re-rounding_.
+Rounding with round to odd at precision $$p + k$$
+  (for $$k \geq 2$$) followed by re-rounding under
+  a standard rounding mode at precision $$p$$,
   yields the same result as rounding directly
-  under that standard rounding mode at lower precision.
+  at precision $$p$$ under the desired rounding mode.
 
 **Theorem 1.**
-Let $$x \in \mathbb{R}$$ be a real number;
-  $$p, k \geq 2$$ be integers;
+Let $$p, k \geq 2$$ be integers;
  and $$rm$$ be a standard rounding mode.
 Then,
 
 $$
-\mathrm{rnd}^{p}_{rm}(x) = \mathrm{rnd}^{p}_{rm}(\mathrm{rnd}^{p+k}_{RTO}(x)).
+\mathrm{rnd}^{p}_{rm} = \mathrm{rnd}^{p}_{rm} \circ \mathrm{rnd}^{p+k}_{\text{RTO}}.
 $$
 
-Applying this theorem to our definition of $$f^{*}$$,
-  we conclude that a correctly-rounded implementation of $$f$$
-  is the composition of
-  (i) a round-to-odd implementation of $$f$$; followed by
-  (ii) re-rounding under the desired rounding mode:
+
+Applying this result to the
+  definition of a correctly-rounded implementation,
+  we can derive that
+  $$f^{*}$$ is the composition of
+  (i) a round-to-odd implementation of $$f$$ at higher precision,
+  followed by (ii) re-rounding under the desired
+  rounding mode:
 
 $$
-f^{*} = \mathrm{rnd}^{p}_{rm} \circ f
-= (\mathrm{rnd}^{p}_{rm} \circ \mathrm{rnd}^{p+k}_{RTO}) \circ f
-= \mathrm{rnd}^{p}_{rm} \circ (\mathrm{rnd}^{p+k}_{RTO} \circ f).
-= \mathrm{rnd}^{p}_{rm} \circ f_{RTO}^{*}.
+f^{*} = \mathrm{rnd}^{p}_{rm} \circ f_{\text{RTO}}^{*}.
 $$
 
-This result is not novel.
-One successful application is found in the RLibm project [4]
+The result is not novel:
+  one successful application is found in the RLibm project [4]
   which automatically generates efficient, correctly-rounded elementary functions
   by generating a polynomial approximation with additional bits
   of precision using round-to-odd arithmetic that will be correctly rounded
   when re-rounded under the desired rounding mode.
 
 For number libraries,
-  the result has significant implications:
-  it suggests that we can build a number library
-  with two _independent_ components:
+  the result has significant implications.
+It suggests that arithmetic and rounding
+  can be decoupled: a number library can consist
+  of two _independent_ components:
   an _arithmetic engine_ that implements each
   mathematical operation using round-to-odd arithmetic,
   and a _rounding library_ that implements
@@ -229,26 +220,9 @@ For number libraries,
 The only interaction between the two components
   is that the rounding library must provide the precision $$p + k$$
   required for safe re-rounding.
-In a program,
+<!-- In a program,
   we may write `f<p, rm>(x)` to evaluate $$f^{*}$$
-  on an input $$x$$ with precision $$p$$ and rounding mode $$rm$$.
-
-Building a number library this way achieves the benefits mentioned earlier:
-
-- _Maintainability:_ The arithmetic engine implements each operation only once,
-  while the rounding library implements rounding logic separately.
-
-- _Extensibility:_ Any new mathematical operation
-  can be composed with the existing rounding library.
-  Similarly, any new rounding logic can be composed with
-  the existing arithmetic engine.
-
-- _Correctness:_ Once a mathematical operation is verified
-  in the arithmetic engine, its correctness applies to any
-  composition with the rounding library.
-  Similarly, once a rounding context is verified,
-  its correctness applies to any mathematical operation.
-  Thus, testing can be done modularly and the results reused.
+  on an input $$x$$ with precision $$p$$ and rounding mode $$rm$$. -->
 
 ### Application
 
@@ -257,22 +231,21 @@ To illustrate this approach in practice,
   an implementation of multiplication.
 
 ```python
-module Numbers:
-    module Engine:
-        def rto_mul(x, y, p):
-            ...
+module Engine:
+    def rto_mul(x, y, p):
+        ...
 
-    module Round:
-        def round(x, p, rm):
-            ...
+module Round:
+    def round(x, p, rm):
+        ...
 
-        def rto_prec(p):
-            ...
+    def rto_prec(p):
+        ...
 
-    def mul(x, y, p, rm):
-        rto_p = Round.rto_prec(p)
-        result = Engine.rto_mul(x, y, rto_p)
-        return Round.round(result, p, rm)
+def mul(x, y, p, rm):
+    rto_p = Round.rto_prec(p)
+    result = Engine.rto_mul(x, y, rto_p)
+    return Round.round(result, p, rm)
 ```
 
 The `Engine` module implements arithmetic operations
@@ -290,7 +263,7 @@ To implement `rto_mul`,
   we can use existing libraries like MPFR
   that have been extensively tested.
 MPFR provides a narrower interface
-  that perform floating-point arithmetic at
+  that performs floating-point arithmetic at
   a specified precision and rounding mode.
 Although MPFR does not directly support round-to-odd,
   we can implement it as described by Boldo and Melquiond [1]:
@@ -305,7 +278,8 @@ def rto_mul(x, y, p):
 ```
 
 Note by Theorem 1,
-  we can request higher precision than `p` for safe re-rounding.
+  we can request higher precision than `p` for safe re-rounding
+  at precision `p - 2`.
 
 Since the arithmetic engine and rounding library are separate,
   the exact implementation of `rto_mul` can be changed
@@ -313,7 +287,7 @@ Since the arithmetic engine and rounding library are separate,
   as long as it produces correct round-to-odd results.
 For example,
   assume that floating-point numbers in our library
-  has the following structure:
+  have the following structure:
 
 ```python
 class Float: # (-1)^sign * c * 2^exp
@@ -332,10 +306,12 @@ def rto_mul(x, y, p):
   return Float(s, exp, c)
 ```
 
-Notice that this implementation does not perform any rounding.
-The result is guaranteed to be round-to-odd for any
-  precision greater than the sum of the precisions of `x` and `y`.
+Notice that this implementation does not
+  perform any rounding, so `p` is unused.
+Since the result is infinitely precise,
+  it can be re-rounded under any precision.
 Extending this implementation to handle special values
+  ($$+\infty$$, $$-\infty$$, NaN, etc.)
   just requires careful case analysis.
 
 For the `Round` module,
@@ -347,9 +323,7 @@ For the `Round` module,
   using the specified rounding mode `rm`.
 
 The implementation of `rto_prec` is straightforward:
-  it simply adds a constant number of bits
-  required for safe re-rounding to the target precision.
-
+  it returns `p + k` for a constant `k >= 2`.
 Implementing the `round` function
   requires care as it's the core method of the rounding library.
 The exact implementation is too verbose
@@ -369,24 +343,58 @@ def round(x, p, rm):
 ```
 
 The `round` function first determines
-  where to round off digits based on the normalized exponent
-  of the argument and the target precision.
+  where to round off digits based on the
+  normalized exponent `x.e` of the argument and
+  the target precision `p`.
 Any digit above this point is significant
   while digits below must be rounded off.
 A method `split` divides the number based on this point,
-  and the lower part is summarized into rounding bits,
-  using a round-sticky (RS) or round-guard-sticky (RGS) scheme.
+  and the lower part is summarized into rounding bits.
+  <!-- using a round-sticky (RS) or round-guard-sticky (RGS) scheme. -->
 Since `hi` represents the round-towards-zero result,
   we decide whether to round away from zero to the next representable
   value based on the rounding bits and the specified rounding mode.
 The correctly-rounded result is `hi`.
 
-Importantly,
-  when implementing additional implementation,
-  we must only provide the round to odd implementation,
-  either from existing libraries or directly;
-  the `round` function can be reused as-is
-  assuming the safe re-rounding contract is met.
+A number library built in this style
+  can be extended to support new operations
+  and rounding modes easily.
+For a new operation $$g$$,
+  we must only implement $$g^{*}_{\text{RTO}}$$
+  in the arithmetic engine,
+  either from existing libraries or manually.
+The function `round` in the rounding library
+  implements the function $$\mathrm{rnd}^{p}_{rm}$$.
+Their composition is then
+  the correctly-rounded implementation $$g^{*}$$ of $$g$$.
+For a new rounding mode,
+  only the `round` function needs to be updated;
+  the arithmetic engine remains unchanged.
+Compare this approach to a monolithic implementation.
+Each new operation requires implementing
+  operation-specific rounding logic;
+  each new rounding mode requires updating
+  every operation.
+
+
+To briefly summarize,
+  separating arithmetic from rounding
+  achieves the following benefits:
+
+- _Maintainability:_ The arithmetic engine implements each operation only once,
+  while the rounding library implements rounding logic separately.
+
+- _Extensibility:_ Any new mathematical operation
+  can be composed with the existing rounding library.
+  Similarly, any new rounding logic can be composed with
+  the existing arithmetic engine.
+
+- _Correctness:_ Once a mathematical operation is verified
+  in the arithmetic engine, its correctness applies to any
+  composition with the rounding library.
+  Similarly, once a rounding context is verified,
+  its correctness applies to any mathematical operation.
+  Thus, testing can be done modularly and the results reused.
 
 ## Rounding Contexts
 
