@@ -85,7 +85,7 @@ As a result,
   and the `round` method of a rounding context instance from
   the core rounding library.
 This trick was pioneered by Bill Zorn [2]
-  in his numbers library found in the Titanic repo [3].
+  in his number library found in the Titanic repo [3].
 
 Second,
   the core rounding library should be organized
@@ -622,12 +622,12 @@ Organizing the rounding library into rounding contexts achieves the following be
 ## Evaluation
 
 To demonstrate the benefits of these design principles,
-  I applied these principles to the numbers library
-  that supports the FPy language [7].
+  I applied them to the number library 
+  underlying the runtime of the FPy language [7].
 FPy is an embedded Python DSL for specifying numerical algorithms,
   with explicit control over rounding via rounding contexts,
   including first-class rounding context values.
-The numbers library supports many families of number formats
+The number library supports many families of number formats
   from IEEE 754 floating-point numbers,
   OCP MX floating-point numbers,
   fixed-point numbers, and more.
@@ -637,14 +637,14 @@ The core arithmetic engine uses MPFR [8]
 ### Maintainability
 
 Due to its modular design,
-  the FPy numbers library remains compact,
+  the FPy number library remains compact,
   composing core components to support a wide variety
   of number formats and operations.
 
 The FPy number library consists
   of four major components:
 - the `Number` module defines FPy's number representation;
-- the `Rounding` module implements the core rounding logic;
+- the `Rounding` module implements the `round_core`;
 - the `Arithmetic` module implements round-to-odd arithmetic using MPFR;
 - the `Contexts` module implements various rounding contexts.
 
@@ -678,7 +678,7 @@ An exhaustive list of rounding contexts is below:
 | `MPBFloat`       | p, emin, max | `MPSFloat` with maximum value    |
 | `IEEEFloat`      | es, nbits    | IEEE 754 floating-point number   |
 | `EFloat`         | es, nbits, I, O, E | generalized IEEE 754 format [9] |
-| `MPFixed`        | n            | fixed-point number               |
+| `MPFixed`        | n            | unbounded fixed-point number |
 | `MPBFixed`       | n, max       | fixed-point with maximum value   |
 | `Fixed`          | scale, nbits | `nbits` fixed-point with scale $$2^{scale}$$ |
 | `SMFixed`        | scale, nbits | sign-magnitude `nbits` fixed-point |
@@ -715,7 +715,33 @@ To implement this operation in FPy,
   we only need to implement its round-to-odd implementation.
 To illustrate one such implementation,
   I implemented a digit recurrence algorithm
-  that iterative computes the significant digits of `1/x^2`:
+  that iteratively computes the significant digits of `1/x^2`.
+
+The implementation adapts the classic
+  reciprocal digit-recurrence algorithm.
+Assuming that
+
+$$
+x = {(-1)}^s * 1.m * 2^{e} = {(-1)}^s * c * 2^{exp},
+$$
+
+  we know the result is of the form
+  $$q * 2^{-2e}$$ where $$q = 1/(1.m)^2$$.
+The algorithm first computes the square of the argument:
+  adding the exponents and squaring the significand.
+Then,
+  it computes the expected exponent, both $$e$$ and $$exp$$,
+  and checks for the special case where the (fractional)
+  significand is exactly `1.0`, in which case the result
+  is just $$2^{-2e}$$.
+Otherwise,
+  it performs digit-recurrence to compute all
+  but the last significant digit of the result.
+Finally,
+  the last digit is determined by round-to-odd:
+  if we have a non-zero remainder,
+  we need to round up to the result with
+  odd significand.
 
 ```python
 def rto_recip_sqr(x, p):
@@ -757,32 +783,6 @@ def rto_recip_sqr(x, p):
   # result
   return Float(s, exp, q)
 ```
-
-The implementation adapts the classic
-  reciprocal digit-recurrence algorithm.
-Assuming that
-
-$$
-x = {(-1)}^s * 1.m * 2^{e} = {(-1)}^s * c * 2^{exp},
-$$
-
-  we know the result is of the form
-  $$q * 2^{-2e}$$ where $$q = 1/(1.m)^2$$.
-The algorithm first computes the square of the argument:
-  adding the exponents and squaring the significand.
-Then,
-  it computes the expected exponent, both $$e$$ and $$exp$$,
-  and checks for the special case where the (fractional)
-  significand is exactly `1.0`, in which case the result
-  is just $$2^{-2e}$$.
-Otherwise,
-  it performs digit-recurrence to compute all
-  but the last significant digit of the result.
-Finally,
-  the last digit is determined by round-to-odd:
-  if we have a non-zero remainder,
-  we need to round up to the result with
-  odd significand.
 
 The implementation is clearly naive,
   but it verifiably satisfies the round-to-odd contract
@@ -1000,7 +1000,7 @@ By decoupling these concerns,
   that are more extensible and easier to verify
   compared to traditional monolithic designs.
 As the numerical computing landscape continues to evolve,
-  these principles are one such approach to provide a foundation
+  these principles are one approach to providing a foundation
   for building maintainable, correct, and extensible
   number libraries that can adapt to future requirements
   without overwhelming their maintainers.
