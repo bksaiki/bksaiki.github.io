@@ -439,17 +439,18 @@ def mul(x, y, ctx):
 
 The two interface methods are similar to before:
 - `rto_prec` computes the precision required to safely re-round
-  a number _under_ the instance of the rounding context; and
-- `round` rounds `x` _under_ the instance of the rounding context.
+  a number _under_ the rounding context; and
+- `round` rounds `x` _under_ the rounding context.
 
-The previous `round` implementation is now `round_core`,
-  which can be reused as the core rounding primitive
-  by each rounding context implementation.
+The previous `round` implementation is now `round_core`.
+  <!-- which can be reused as the core rounding primitive
+  by each rounding context implementation. -->
 The `mul` function now accepts
   a rounding context instance rather than explicit rounding parameters:
   its implementation must be adapted slightly.
-A sensible strategy is to organize
-  the different implementations of `Round`
+
+One strategy for implementing rounding contexts is
+  to organize each implementation of `Round`
   based on families of _number formats_.
 For example,
   we can implement `p`-digit floating-point numbers,
@@ -461,7 +462,7 @@ class MPFloat(Round):
   rm: RoundingMode
 
   def rto_prec(self):
-    return self.p + k  # k is a constant for safe re-rounding
+    return self.p + 2
 
   def round(self, x):
     return self.round_core(x, self.p, self.rm)
@@ -491,15 +492,12 @@ class IEEEFloat(Round):
   nbits: int  # total number of bits (nbits >= es + 2)
   rm: RoundingMode
 
-  def mp_ctx(self): # corresponding MPFloat context
-    return MPFloat(nbits - es, rm)
-
   def emin(self): # minimum (normalized) exponent
     return 1 - (1 << (es - 1))
 
   def rto_prec(self):
     p = self.nbits - self.es
-    return MPFloat(p, self.rm).rto_prec() # need at least this much precision
+    return MPFloat(p).rto_prec() # need at least this much precision
 
   def round(self, x):
     max_p = self.nbits - self.es # maximum allowable precision
@@ -536,22 +534,24 @@ def round_core(x, p, n, rm): # added n parameter
 ```
 
 The caller must specify either `p` or `n`.
-If both are specified, then the option
-  that will preserve the fewest digits is chosen.
-
-We must also alter the arithmetic engine
+<!-- If both are specified, then the option
+  that will preserve the fewest digits is chosen. -->
+The arithmetic engine must also be altered
+  to support a stopping point `n` rather than
+  precision `p` when performing fixed-point operations.
+<!-- We must also alter the arithmetic engine
   to request a stopping point `n` rather than
-  precision `p` when performing round-to-odd operations.
+  precision `p` when performing round-to-odd operations. -->
 For example,
   if we want to round with `n=-1`, keeping only
   integer digits, then the arithmetic engine must produce
   a round-to-odd result with enough arbitrary precision
   to preserve all integer digits plus extra digits
   for safe re-rounding.
-One method of supporting fixed-point style computation
+<!-- One method of supporting fixed-point style computation
   is making an initial precision guess,
   re-computing with the correct precision based
-  on the result only when needed.
+  on the result only when needed. -->
 Like before,
   one of `p` or `n` must be specified.
 
@@ -577,7 +577,7 @@ class MPFixed(Round):
   rm: RoundingMode
 
   def rto_params(self):
-    return None, self.n - k  # k is a constant for safe re-rounding
+    return None, self.n - 2  # 2 additional bits for safe re-rounding
 
   def round(self, x):
     return self.round_core(x, None, self.n, self.rm)
