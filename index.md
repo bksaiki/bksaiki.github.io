@@ -20,18 +20,19 @@ I do research in programming languages, computer number systems,
 
 [Resume](assets/resume.pdf) -
 [LinkedIn](https://linkedin.com/in/brettsaiki) -
-[GitHub](https://github.com/bksaiki)
+[GitHub](https://github.com/bksaiki) -
+[ORCID](https://orcid.org/0009-0002-3482-5767)
 
 # Research
+
+ - [FPy](https://github.com/fpy/fpy) - a Python eDSL for design space exploration
+    of numerical algorithms.
 
  - [Herbie](https://github.com/herbie-fp/herbie) - a tool for minimizing error
     in floating-point expressions.
 
  - [FPBench](https://github.com/FPBench/FPBench) - a collection of benchmarks,
     compilers, and standards for the floating-point research community.
-
- - [Ruler](https://github.com/uwplse/ruler) - a framework for synthesizing
-    rewrite rules for a particular domain.
 
 # Publications
 
@@ -71,10 +72,9 @@ IEEE Symposium on Computer Arithmetic (ARITH) 2021
 
  - [Minim](https://github.com/bksaiki/Minim) - a Scheme-like language inspired by work in Racket.
 
- - [mpmfnum](https://github.com/bksaiki/mpmfnum-rust) - number systems library in Rust.
+ - [mpfx](https://github.com/bksaiki/mpfx) - numbers library in C++
 
- - [generic-flonum](https://docs.racket-lang.org/generic-flonum/index.html) -
-    Racket interface for MPFR that supports subnormal numbers and variable exponent sizes.
+ - [mpmfnum](https://github.com/bksaiki/mpmfnum-rust) - numbers library in Rust
 
 # Resources
 
