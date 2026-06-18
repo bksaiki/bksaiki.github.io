@@ -1,0 +1,56 @@
+#transit-route-reviews .route-review {
+  border-bottom: 1px solid #e8e8e8;
+}
+#transit-route-reviews summary {
+  cursor: pointer;
+  padding: 0.5em 0.25em;
+  font-weight: 600;
+}
+#transit-route-reviews summary:hover {
+  background: #f5f5f5;
+}
+#transit-route-reviews .reviews {
+  padding: 0.25em 0.5em 0.75em 1.5em;
+}
+#transit-route-reviews .reviews p {
+  margin: 0.5em 0;
+}
+
+#transit-route-reviews .pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  align-items: center;
+  margin-top: 1em;
+}
+#transit-route-reviews .pager button {
+  min-width: 2.2em;
+  padding: 0.3em 0.5em;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+#transit-route-reviews .pager button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+#transit-route-reviews .pager button.current {
+  background: #4a8;
+  border-color: #4a8;
+  color: #fff;
+  font-weight: 600;
+}
+#transit-route-reviews .pager button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+#transit-route-reviews .pager .ellipsis {
+  padding: 0 0.25em;
+}
+#transit-route-reviews .pager-info {
+  font-size: 0.85em;
+  color: #666;
+  margin-top: 0.75em;
+}
