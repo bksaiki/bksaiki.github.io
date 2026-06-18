@@ -35,4 +35,4 @@ Track my progress below!
 
 Click a route number to read my reviews.
 
-{% include route-reviews.html csv_url="https://docs.google.com/spreadsheets/d/e/2PACX-1vQWYIkcvbhjtEPvPcIHm4tUfHbv3gPWoFMlcKKwSm_2fFoOYmlzK7sWBcYjl4R1qreFfk9TaD3zCyAB/pub?gid=1746587999&single=true&output=csv" %}
+{% include route-reviews.html per_page="10" csv_url="https://docs.google.com/spreadsheets/d/e/2PACX-1vQWYIkcvbhjtEPvPcIHm4tUfHbv3gPWoFMlcKKwSm_2fFoOYmlzK7sWBcYjl4R1qreFfk9TaD3zCyAB/pub?gid=1746587999&single=true&output=csv" %}
