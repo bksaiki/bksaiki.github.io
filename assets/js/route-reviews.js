@@ -23,15 +23,31 @@
     return m ? parseInt(m[1], 10) : Infinity;
   }
 
-  // Parse M/D/YY (2-digit year assumed 2000s) into a sortable timestamp.
-  // Anything that isn't a concrete date (e.g. "undated") sorts as oldest.
-  function parseDate(s) {
+  var MONTHS = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+
+  // Parse M/D/YY (2-digit year assumed 2000s) into {y, m, d}, or null if not a date.
+  function dateParts(s) {
     var p = String(s).split("/");
-    if (p.length !== 3) return -Infinity;
+    if (p.length !== 3) return null;
     var mo = parseInt(p[0], 10), d = parseInt(p[1], 10), y = parseInt(p[2], 10);
-    if (isNaN(mo) || isNaN(d) || isNaN(y)) return -Infinity;
+    if (isNaN(mo) || isNaN(d) || isNaN(y) || mo < 1 || mo > 12) return null;
     if (y < 100) y += 2000;
-    return new Date(y, mo - 1, d).getTime();
+    return { y: y, m: mo, d: d };
+  }
+
+  // Sortable timestamp; non-dates (e.g. "undated") sort as oldest.
+  function parseDate(s) {
+    var p = dateParts(s);
+    return p ? new Date(p.y, p.m - 1, p.d).getTime() : -Infinity;
+  }
+
+  // Display label: "13 June 2026" for real dates; otherwise the text, capitalized.
+  function formatDate(s) {
+    var p = dateParts(s);
+    if (p) return p.d + " " + MONTHS[p.m - 1] + " " + p.y;
+    s = String(s);
+    return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
   // Timestamp of a route's most recent review.
@@ -121,7 +137,7 @@
       html += "<summary>" + escapeHTML(num) + "</summary>";
       html += "<div class='reviews'>";
       reviews.forEach(function (rev) {
-        var label = rev.date.charAt(0).toUpperCase() + rev.date.slice(1);
+        var label = formatDate(rev.date);
         html += "<p><strong>" + escapeHTML(label) + ".</strong> " +
                 escapeHTML(rev.note) + "</p>";
       });
