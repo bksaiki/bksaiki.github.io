@@ -4,9 +4,11 @@
   var url = el.getAttribute("data-csv-url");
   var PAGE_SIZE = parseInt(el.getAttribute("data-page-size"), 10) || 15;
 
-  var routes = [];   // sorted route labels (one entry per route)
-  var groups = {};   // route label -> [{date, note}, ...]
+  var routes = [];      // route labels in current display order (one per route)
+  var groups = {};      // route label -> [{date, note}, ...]
   var currentPage = 1;
+  var sortMode = "route";
+  var listEl = null;    // the re-rendered list container (toolbar stays put)
 
   // Map header names to column indices so column order can change safely.
   function indexHeaders(header) {
@@ -30,6 +32,33 @@
     if (isNaN(mo) || isNaN(d) || isNaN(y)) return -Infinity;
     if (y < 100) y += 2000;
     return new Date(y, mo - 1, d).getTime();
+  }
+
+  // Timestamp of a route's most recent review.
+  function routeNewest(num) {
+    return groups[num].reduce(function (mx, r) {
+      var t = parseDate(r.date);
+      return t > mx ? t : mx;
+    }, -Infinity);
+  }
+
+  function byRouteNumber(a, b) {
+    var ka = routeSortKey(a), kb = routeSortKey(b);
+    if (ka !== kb) return ka - kb;
+    return a.localeCompare(b);
+  }
+
+  function sortRoutes() {
+    if (sortMode === "newest") {
+      // Routes with the most recent review first; ties fall back to route number.
+      routes.sort(function (a, b) {
+        var na = routeNewest(a), nb = routeNewest(b);
+        if (na !== nb) return nb > na ? 1 : -1;
+        return byRouteNumber(a, b);
+      });
+    } else {
+      routes.sort(byRouteNumber);
+    }
   }
 
   // Build the list of page numbers to show, with "…" gaps for large counts.
@@ -104,7 +133,7 @@
       html += "<p class='pager-info'>Routes " + (start + 1) + "–" +
               (start + slice.length) + " of " + routes.length + "</p>";
     }
-    el.innerHTML = html;
+    listEl.innerHTML = html;
   }
 
   function build(rows) {
@@ -129,13 +158,26 @@
     routes = Object.keys(groups);
     if (!routes.length) { el.innerHTML = "<p>No route reviews yet.</p>"; return; }
 
-    routes.sort(function (a, b) {
-      var ka = routeSortKey(a), kb = routeSortKey(b);
-      if (ka !== kb) return ka - kb;
-      return a.localeCompare(b);
+    // Persistent toolbar + a list container that gets re-rendered on change.
+    el.innerHTML =
+      "<div class='rr-toolbar'>" +
+        "<label for='rr-sort'>Sort by </label>" +
+        "<select id='rr-sort'>" +
+          "<option value='route'>Route</option>" +
+          "<option value='newest'>Date</option>" +
+        "</select>" +
+      "</div>" +
+      "<div class='rr-list'></div>";
+    listEl = el.querySelector(".rr-list");
+
+    el.addEventListener("change", function (e) {
+      if (e.target.id !== "rr-sort") return;
+      sortMode = e.target.value;
+      sortRoutes();
+      renderPage(1);
     });
 
-    // One delegated handler survives re-renders since el itself isn't replaced.
+    // Delegated pager handler survives re-renders since listEl isn't replaced wholesale.
     el.addEventListener("click", function (e) {
       var btn = e.target.closest("[data-page]");
       if (!btn || btn.disabled) return;
@@ -143,6 +185,7 @@
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
+    sortRoutes();
     renderPage(1);
   }
 
