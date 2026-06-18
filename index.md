@@ -25,7 +25,7 @@ I do research in programming languages, computer number systems,
 
 # Research
 
- - [FPy](https://github.com/fpy/fpy) - a Python eDSL for design space exploration
+ - [FPy](https://github.com/bksaiki/fpy) - a Python eDSL for design space exploration
     of numerical algorithms.
 
  - [Herbie](https://github.com/herbie-fp/herbie) - a tool for minimizing error
