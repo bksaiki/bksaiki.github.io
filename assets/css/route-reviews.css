@@ -1,3 +1,16 @@
+#transit-route-reviews .rr-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-bottom: 0.75em;
+  font-size: 0.9em;
+}
+#transit-route-reviews .rr-toolbar select {
+  padding: 0.25em 0.4em;
+  font: inherit;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
 #transit-route-reviews .route-review {
   border-bottom: 1px solid #e8e8e8;
 }
