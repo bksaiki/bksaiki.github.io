@@ -36,3 +36,7 @@ Track my progress below!
 Click a route number to read my reviews.
 
 {% include route-reviews.html per_page="10" csv_url="https://docs.google.com/spreadsheets/d/e/2PACX-1vQWYIkcvbhjtEPvPcIHm4tUfHbv3gPWoFMlcKKwSm_2fFoOYmlzK7sWBcYjl4R1qreFfk9TaD3zCyAB/pub?gid=1746587999&single=true&output=csv" %}
+
+The data on this page is pulled live from my
+  [route-tracking spreadsheet](https://docs.google.com/spreadsheets/d/1L9HeczWOEJe54MTWaj7Fj3njKpbG8AskyeFMK99dxkc/edit?usp=sharing)
+  if you want to see more detailed information.
