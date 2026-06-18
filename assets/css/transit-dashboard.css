@@ -1,0 +1,24 @@
+#transit-dashboard table { width: 100%; }
+#transit-dashboard .bar {
+  position: relative;
+  background: #e8e8e8;
+  border-radius: 4px;
+  height: 1.1em;
+  min-width: 80px;
+  overflow: hidden;
+}
+#transit-dashboard .bar > span {
+  display: block;
+  height: 100%;
+  background: #4a8;
+  border-radius: 4px;
+}
+#transit-dashboard .bar > em {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  text-align: center;
+  font-style: normal;
+  font-size: 0.8em;
+  line-height: 1.1em;
+}
+#transit-dashboard td.num { text-align: right; }
