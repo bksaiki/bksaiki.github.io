@@ -58,6 +58,13 @@
     }, -Infinity);
   }
 
+  // Row order of a route's topmost (newest) review in the spreadsheet.
+  function routeOrder(num) {
+    return groups[num].reduce(function (mn, r) {
+      return r.order < mn ? r.order : mn;
+    }, Infinity);
+  }
+
   function byRouteNumber(a, b) {
     var ka = routeSortKey(a), kb = routeSortKey(b);
     if (ka !== kb) return ka - kb;
@@ -66,11 +73,11 @@
 
   function sortRoutes() {
     if (sortMode === "newest") {
-      // Routes with the most recent review first; ties fall back to route number.
+      // Most recent review first; ties broken by spreadsheet row order (newest first).
       routes.sort(function (a, b) {
         var na = routeNewest(a), nb = routeNewest(b);
         if (na !== nb) return nb > na ? 1 : -1;
-        return byRouteNumber(a, b);
+        return routeOrder(a) - routeOrder(b);
       });
     } else {
       routes.sort(byRouteNumber);
@@ -129,9 +136,10 @@
     var html = "";
     slice.forEach(function (num) {
       var reviews = groups[num].slice().sort(function (a, b) {
-        // newest first; compare (not subtract) so -Infinity ties don't yield NaN
+        // newest first; ties broken by spreadsheet row order (also newest first)
         var ta = parseDate(a.date), tb = parseDate(b.date);
-        return ta === tb ? 0 : (tb > ta ? 1 : -1);
+        if (ta !== tb) return tb > ta ? 1 : -1;
+        return a.order - b.order;
       });
       html += "<details class='route-review'>";
       html += "<summary>" + escapeHTML(num) + "</summary>";
@@ -163,12 +171,16 @@
     }
 
     groups = {};
-    rows.slice(1).forEach(function (r) {
+    // `order` preserves the spreadsheet's row order (newest first), used to break
+    // date ties so the ordering is total rather than arbitrary.
+    rows.slice(1).forEach(function (r, i) {
       var note = (r[cNotes] || "").trim();
       if (!note) return;
       var num = (r[cNum] || "").trim();
       if (!num) return;
-      (groups[num] = groups[num] || []).push({ date: (r[cDate] || "").trim(), note: note });
+      (groups[num] = groups[num] || []).push({
+        date: (r[cDate] || "").trim(), note: note, order: i
+      });
     });
 
     routes = Object.keys(groups);
