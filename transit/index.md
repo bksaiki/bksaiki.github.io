@@ -10,8 +10,8 @@ I've been watching a lot of YouTube videos about transit from
   and [CityNerd](https://www.youtube.com/c/citynerd).
 I love talking about transit,
   especially Amtrak and bus networks.
-Even though I've taken public buses
-  since high school (I thoroughly enjoyed the hour-long headways on [OCTA](https://www.octa.net/)),
+Even though I've taken public buses since high school
+  (I vividly recall the hour-long headways on [OCTA](https://www.octa.net/)),
   I'm relatively new to being a true transit enthusiast.
 I'm eager to learn more about different transit systems and how they operate!
 
