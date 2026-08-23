@@ -5,5 +5,8 @@ _site
 .jekyll-metadata
 vendor
 
+# Ruby
+Gemfile.lock
+
 # Private
 papers-repo/

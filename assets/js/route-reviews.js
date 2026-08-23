@@ -2,10 +2,12 @@
   var el = document.getElementById("transit-route-reviews");
   if (!el) return;
   var url = el.getAttribute("data-csv-url");
+  var routesUrl = el.getAttribute("data-routes-csv-url");
   var PAGE_SIZE = parseInt(el.getAttribute("data-page-size"), 10) || 15;
 
   var routes = [];      // route labels in current display order (one per route)
   var groups = {};      // route label -> [{date, note}, ...]
+  var endDates = {};    // route label -> last day of service (discontinued routes only)
   var currentPage = 1;
   var sortMode = "route";
   var listEl = null;    // the re-rendered list container (toolbar stays put)
@@ -48,6 +50,26 @@
     if (p) return p.d + " " + MONTHS[p.m - 1] + " " + p.y;
     s = String(s);
     return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  // Midnight today, so a route still shows as running on its final service day.
+  function todayStart() {
+    var n = new Date();
+    return new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime();
+  }
+
+  // Route Id -> last day of service, from the Routes sheet's "Service End" column.
+  function serviceEnds(rows) {
+    var map = {};
+    if (!rows || rows.length < 2) return map;
+    var idx = indexHeaders(rows[0]);
+    var cId = idx["id"], cEnd = idx["service end"];
+    if (cId == null || cEnd == null) return map;
+    rows.slice(1).forEach(function (r) {
+      var end = (r[cEnd] || "").trim();
+      if (dateParts(end)) map[(r[cId] || "").trim()] = end;
+    });
+    return map;
   }
 
   // Timestamp of a route's most recent review.
@@ -144,6 +166,11 @@
       html += "<details class='route-review'>";
       html += "<summary>" + escapeHTML(num) + "</summary>";
       html += "<div class='reviews'>";
+      var end = endDates[num];
+      if (end && parseDate(end) < todayStart()) {
+        html += "<p class='discontinued'><em>Discontinued; last day of service was " +
+                escapeHTML(formatDate(end)) + ".</em></p>";
+      }
       reviews.forEach(function (rev) {
         var label = formatDate(rev.date);
         html += "<p><strong>" + escapeHTML(label) + ".</strong> " +
@@ -160,17 +187,20 @@
     listEl.innerHTML = html;
   }
 
-  function build(rows) {
+  function build(rows, routeRows) {
     if (rows.length < 2) { el.innerHTML = "<p>No route reviews yet.</p>"; return; }
 
     var idx = indexHeaders(rows[0]);
     var cNum = idx["route number"], cDate = idx["date"], cNotes = idx["notes"];
+    var cId = idx["route id"];
+    var endByRouteId = serviceEnds(routeRows);
     if (cNum == null || cNotes == null) {
       el.innerHTML = "<p>Couldn't find the expected columns in the data.</p>";
       return;
     }
 
     groups = {};
+    endDates = {};
     // `order` preserves the spreadsheet's row order (newest first), used to break
     // date ties so the ordering is total rather than arbitrary.
     rows.slice(1).forEach(function (r, i) {
@@ -181,6 +211,8 @@
       (groups[num] = groups[num] || []).push({
         date: (r[cDate] || "").trim(), note: note, order: i
       });
+      var end = endByRouteId[(r[cId] || "").trim()];
+      if (end) endDates[num] = end;
     });
 
     routes = Object.keys(groups);
@@ -217,12 +249,21 @@
     renderPage(1);
   }
 
-  fetch(url)
-    .then(function (resp) {
-      if (!resp.ok) throw new Error("HTTP " + resp.status);
-      return resp.text();
-    })
-    .then(function (text) { build(parseCSV(text)); })
+  function fetchCSV(u) {
+    return fetch(u)
+      .then(function (resp) {
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        return resp.text();
+      })
+      .then(parseCSV);
+  }
+
+  Promise.all([
+    fetchCSV(url),
+    // Service-end dates are supplementary; losing them shouldn't blank the reviews.
+    routesUrl ? fetchCSV(routesUrl).catch(function () { return null; }) : null
+  ])
+    .then(function (r) { build(r[0], r[1]); })
     .catch(function (err) {
       el.innerHTML = "<p>Couldn't load route reviews (" + escapeHTML(err.message) + ").</p>";
     });

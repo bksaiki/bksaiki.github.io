@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="{{ '/assets/css/route-reviews.css' | relative_url }}">
 
-<div id="transit-route-reviews" data-csv-url="{{ include.csv_url }}"{% if include.per_page %} data-page-size="{{ include.per_page }}"{% endif %}>
+<div id="transit-route-reviews" data-csv-url="{{ include.csv_url }}"{% if include.routes_csv_url %} data-routes-csv-url="{{ include.routes_csv_url }}"{% endif %}{% if include.per_page %} data-page-size="{{ include.per_page }}"{% endif %}>
   <p>Loading route reviews…</p>
 </div>
 

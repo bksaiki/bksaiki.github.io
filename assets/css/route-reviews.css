@@ -28,6 +28,10 @@
 #transit-route-reviews .reviews p {
   margin: 0.5em 0;
 }
+#transit-route-reviews .discontinued {
+  color: #a3401a;
+  font-size: 0.95em;
+}
 
 #transit-route-reviews .pager {
   display: flex;
