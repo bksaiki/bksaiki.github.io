@@ -36,6 +36,11 @@ I do research in programming languages, computer number systems,
 
 # Publications
 
+**When Double Rounding is Correct**  
+Brett Saiki, Bill Zorn, Cynthia Richey, Zachary Tatlock  
+*Under Review*  
+[Paper](https://arxiv.org/pdf/2610.09005.pdf)
+
 **Target-Aware Implementation of Real Expressions**  
 Brett Saiki, Jackson Brough, Jonas Regehr, Jesús Ponce, Varun Pradeep,
 Aditya Akhileshwaran, Zachary Tatlock, Pavel Panchekha  
